@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Shift Newcal — Diagnostic Facebook</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ══════════════════════════════
+// SECRET ADMIN ACCESS
+// ══════════════════════════════
+const ADMIN_PASSWORD = 'shiftnewcal2026';
+let keyBuffer = '';
+
+document.addEventListener('keydown', e => {
+  keyBuffer += e.key.toUpperCase();
+  if(keyBuffer.length > 5) keyBuffer = keyBuffer.slice(-5);
+  if(keyBuffer === 'ADMIN'){
+    keyBuffer = '';
+    openAdminModal();
+  }
+});
+
+function openAdminModal(){
+  document.getElementById('admin-pw').value = '';
+  document.getElementById('admin-pw-error').style.display = 'none';
+  document.getElementById('admin-modal').classList.add('open');
+  setTimeout(()=> document.getElementById('admin-pw').focus(), 100);
+}
+
+function closeAdminModal(){
+  document.getElementById('admin-modal').classList.remove('open');
+}
+
+function checkAdminPw(){
+  const pw = document.getElementById('admin-pw').value;
+  if(pw === ADMIN_PASSWORD){
+    closeAdminModal();
+    showView('v-admin');
+  } else {
+    document.getElementById('admin-pw-error').style.display = 'block';
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+  }
+}
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --black:#080808;
+  --surface:#101010;
+  --surface2:#161616;
+  --border:#1e1e1e;
+  --border-lit:#2c2c2c;
+  --white:#f5f5f5;
+  --grey-300:#bbb;
+  --grey-400:#777;
+  --grey-600:#3a3a3a;
+  --red:#e02020;
+  --orange:#e87800;
+  --green:#18a060;
+  --red-bg:#130606;
+  --orange-bg:#120d00;
+  --green-bg:#051208;
+  --shift:#1a7a3c;
+  --shift-dark:#145e2d;
+  --shift-dim:#0a2e14;
+  --gold:#c9940a;
+  --gold-bg:#120f02;
+}
+
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:var(--black);
+  color:var(--white);
+  min-height:100vh;
+}
+
+/* ── SHARED ── */
+.view{ display:none; }
+.view.active{ display:block; }
+
+.logo-bar{
+  padding:18px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.logo{
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.14em;
+  color:var(--shift);
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.logo-dot{
+  width:6px;height:6px;
+  background:var(--shift);
+  border-radius:50%;
+  animation:blink 2s infinite;
+}
+
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+.admin-link{
+  font-size:10px;
+  color:var(--grey-400);
+  cursor:pointer;
+  font-family:'Space Mono',monospace;
+  letter-spacing:0.08em;
+  text-decoration:none;
+  border:none;
+  background:none;
+  transition:color 0.2s;
+}
+.admin-link:hover{color:var(--white);}
+
+.wrap{ max-width:520px; margin:0 auto; padding:0 20px; }
+
+label{
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--grey-400);
+  margin-bottom:7px;
+}
+
+input[type="text"],input[type="url"],input[type="password"]{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border-lit);
+  border-radius:8px;
+  padding:12px 14px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px;
+  color:var(--white);
+  outline:none;
+  transition:border-color 0.2s;
+}
+input:focus{border-color:var(--shift);}
+
+.field{ margin-bottom:16px; }
+
+.btn{
+  width:100%;border:none;border-radius:10px;
+  padding:15px;font-family:'Space Grotesk',sans-serif;
+  font-size:18px;font-weight:700;cursor:pointer;
+  transition:background 0.2s,opacity 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn:disabled{opacity:0.35;cursor:not-allowed;}
+.btn-primary{background:var(--shift);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--shift-dark);}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-gold:hover:not(:disabled){background:#b8850a;}
+.btn-outline{background:transparent;color:var(--grey-400);border:1px solid var(--border-lit);}
+.btn-outline:hover{color:var(--white);border-color:var(--grey-400);}
+
+.error-box{
+  background:#140404;border:1px solid #3a0a0a;
+  border-radius:8px;padding:12px 14px;
+  font-size:13px;color:#ff8080;
+  margin-bottom:14px;display:none;line-height:1.5;
+}
+
+/* ════════════════════
+   VIEW 1 — UPLOAD
+════════════════════ */
+#v-upload .inner{
+  padding:36px 0 80px;
+}
+
+.page-title{
+  font-size:26px;font-weight:700;line-height:1.15;
+  margin-bottom:8px;
+}
+.page-sub-hook{font-size:15px;color:var(--shift);font-weight:600;margin-bottom:28px;letter-spacing:0.01em;}
+.page-sub{
+  font-size:14px;color:var(--grey-400);
+  margin-bottom:32px;line-height:1.6;
+}
+
+.drop-zone{
+  border:2px dashed var(--border-lit);
+  border-radius:12px;padding:32px 20px;
+  text-align:center;cursor:pointer;
+  transition:border-color 0.2s,background 0.2s;
+  position:relative;margin-bottom:14px;
+}
+.drop-zone:hover,.drop-zone.over{
+  border-color:var(--shift);background:#081530;
+}
+.drop-zone input[type="file"]{
+  position:absolute;inset:0;opacity:0;
+  cursor:pointer;width:100%;height:100%;
+}
+.drop-icon{margin-bottom:14px;display:flex;align-items:center;justify-content:center;}
+.drop-title{font-size:14px;font-weight:600;margin-bottom:3px;}
+.drop-sub{font-size:12px;color:var(--grey-400);}
+
+.file-count{
+  font-size:12px;color:var(--grey-400);
+  margin-bottom:14px;font-family:'Space Mono',monospace;
+  min-height:18px;
+}
+.file-count span{color:var(--shift);}
+
+#previews{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin-bottom:16px;
+}
+.thumb-wrap{position:relative;width:60px;height:60px;}
+.thumb-wrap img{
+  width:60px;height:60px;object-fit:cover;
+  border-radius:7px;border:1px solid var(--border-lit);
+  display:block;
+}
+.thumb-rm{
+  position:absolute;top:-5px;right:-5px;
+  width:16px;height:16px;
+  background:var(--red);border-radius:50%;border:none;
+  color:#fff;font-size:9px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+
+
+
+/* ════════════════════
+   VIEW 2 — LOADING
+════════════════════ */
+#v-loading{
+  max-width:520px;margin:0 auto;
+  padding:100px 20px;text-align:center;
+}
+.loader-ring{
+  width:60px;height:60px;
+  border:3px solid var(--border-lit);
+  border-top-color:var(--shift);
+  border-radius:50%;
+  animation:spin 0.75s linear infinite;
+  margin:0 auto 24px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-title{font-size:17px;font-weight:600;margin-bottom:16px;}
+.loader-steps{text-align:left;display:inline-block;}
+.lstep{
+  font-size:13px;color:var(--grey-600);
+  padding:4px 0;display:flex;align-items:center;gap:10px;
+  transition:color 0.4s;
+}
+.lstep.active{color:var(--white);}
+.lstep.done{color:var(--green);}
+.lstep-icon{font-size:14px;width:20px;text-align:center;}
+
+/* ════════════════════
+   VIEW 3 — FREE REPORT
+════════════════════ */
+#v-free{ padding-bottom:80px; }
+
+.report-header{
+  padding:22px 20px 18px;
+  border-bottom:1px solid var(--border);
+}
+.rh-brand{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--shift);margin-bottom:14px;
+}
+.rh-name{font-size:21px;font-weight:700;margin-bottom:3px;}
+.rh-sub{font-size:12px;color:var(--grey-400);}
+
+/* Global score */
+.global-score-block{
+  padding:22px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:20px;
+}
+.ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0;}
+.ring-wrap svg{transform:rotate(-90deg);width:80px;height:80px;}
+.r-bg{stroke:#1c1c1c;fill:none;stroke-width:7;}
+.r-fill{fill:none;stroke-width:7;stroke-linecap:round;
+  transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);}
+.ring-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);text-align:center;
+}
+.ring-num{
+  font-family:'Space Mono',monospace;
+  font-size:20px;font-weight:700;line-height:1;
+}
+.ring-denom{font-size:10px;color:var(--grey-400);}
+.score-text .verdict{font-size:16px;font-weight:700;margin-bottom:4px;}
+.score-text .intro{font-size:13px;color:var(--grey-400);line-height:1.55;}
+
+/* Category blocks */
+.categories{ padding:16px 20px; }
+.cat-eyebrow{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--grey-600);margin-bottom:14px;
+}
+.cat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px;margin-bottom:10px;
+  border-left:3px solid transparent;
+  animation:fadeUp 0.4s ease both;
+}
+.cat-card:nth-child(2){animation-delay:.06s}
+.cat-card:nth-child(3){animation-delay:.12s}
+.cat-card:nth-child(4){animation-delay:.18s}
+.cat-card:nth-child(5){animation-delay:.24s}
+.cat-card:nth-child(6){animation-delay:.30s}
+.cat-card:nth-child(7){animation-delay:.36s}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.cat-card.critical{border-left-color:var(--red);background:var(--red-bg);}
+.cat-card.moderate{border-left-color:var(--orange);background:var(--orange-bg);}
+.cat-card.good{border-left-color:var(--green);background:var(--green-bg);}
+
+.cat-top{
+  display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:10px;gap:10px;
+}
+.cat-name{font-size:14px;font-weight:700;}
+
+.cat-score-pill{
+  font-family:'Space Mono',monospace;
+  font-size:12px;font-weight:700;
+  padding:3px 9px;border-radius:20px;flex-shrink:0;
+}
+.critical .cat-score-pill{background:#200808;color:#ff7070;}
+.moderate .cat-score-pill{background:#1e1200;color:#ffaa44;}
+.good .cat-score-pill{background:#071a10;color:#4dd49a;}
+
+.cat-reco{
+  font-size:12px;font-weight:600;
+  padding:9px 12px;border-radius:6px;line-height:1.5;
+}
+.critical .cat-reco{background:#1c0606;color:#ffaaaa;}
+.moderate .cat-reco{background:#1c1000;color:#ffc266;}
+.good .cat-reco{background:#071410;color:#5fd4a0;}
+
+/* LOCK banner */
+.lock-banner{
+  margin:8px 20px 0;
+  background:linear-gradient(135deg,#0e0e0e,#181510);
+  border:1px solid var(--gold);
+  border-radius:14px;padding:24px;text-align:center;
+}
+.lock-icon{font-size:28px;margin-bottom:10px;}
+.lock-title{font-size:17px;font-weight:700;margin-bottom:6px;}
+.lock-sub{font-size:13px;color:var(--grey-300);margin-bottom:6px;line-height:1.5;}
+.lock-price{
+  font-family:'Space Mono',monospace;
+  font-size:22px;font-weight:700;color:var(--gold);
+  margin-bottom:18px;
+}
+.lock-features{
+  text-align:left;margin-bottom:18px;
+}
+.lock-feat{
+  font-size:12px;color:var(--grey-300);
+  display:flex;align-items:flex-start;gap:8px;
+  margin-bottom:6px;line-height:1.4;
+}
+.lock-feat::before{content:'✓';color:var(--gold);font-weight:700;flex-shrink:0;}
+
+.or-divider{
+  font-size:11px;color:var(--grey-600);
+  margin:14px 0;
+  display:flex;align-items:center;gap:12px;
+}
+.or-divider::before,.or-divider::after{
+  content:'';flex:1;height:1px;background:var(--border-lit);
+}
+
+.code-unlock{
+  display:flex;gap:8px;margin-bottom:0;
+}
+.code-unlock input{
+  flex:1;font-size:14px;
+  letter-spacing:0.1em;text-transform:uppercase;
+}
+.btn-unlock{
+  background:var(--shift);color:#fff;
+  border:none;border-radius:8px;
+  padding:0 18px;font-family:'Space Grotesk',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;
+  white-space:nowrap;
+  transition:background 0.2s;
+}
+.btn-unlock:hover{background:var(--shift-dark);}
+
+.code-error{
+  font-size:12px;color:var(--red);margin-top:8px;display:none;
+}
+
+/* ════════════════════
+   VIEW 4 — FULL REPORT
+════════════════════ */
+#v-full{ padding-bottom:80px; }
+
+.full-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--gold-bg);border:1px solid var(--gold);
+  border-radius:20px;padding:4px 12px;
+  font-size:10px;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;
+}
+
+.detail-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:15px;margin-bottom:8px;
+  border-left:3px solid transparent;
+  animation:fadeUp 0.4s ease both;
+}
+.detail-card.critical{border-left-color:var(--red);background:var(--red-bg);}
+.detail-card.moderate{border-left-color:var(--orange);background:var(--orange-bg);}
+.detail-card.good{border-left-color:var(--green);background:var(--green-bg);}
+
+.dc-top{
+  display:flex;align-items:flex-start;
+  justify-content:space-between;gap:8px;margin-bottom:8px;
+}
+.dc-name{font-size:13px;font-weight:700;line-height:1.3;}
+.status-pill{
+  font-size:9px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;
+}
+.critical .status-pill{background:#200808;color:#ff7070;}
+.moderate .status-pill{background:#1e1200;color:#ffaa44;}
+.good .status-pill{background:#071a10;color:#4dd49a;}
+
+.dc-explain{font-size:12px;color:var(--grey-300);line-height:1.55;margin-bottom:8px;}
+.dc-fix{
+  font-size:11px;font-weight:600;
+  padding:8px 10px;border-radius:6px;line-height:1.5;
+}
+.critical .dc-fix{background:#1c0606;color:#ffaaaa;}
+.moderate .dc-fix{background:#1c1000;color:#ffc266;}
+.good .dc-fix{background:#071410;color:#5fd4a0;}
+
+.cat-section-title{
+  font-family:'Space Mono',monospace;
+  font-size:9px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--grey-600);
+  margin:22px 0 10px;display:flex;
+  align-items:center;gap:10px;
+}
+.cat-section-title::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+.cat-section-badge{
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;margin-left:auto;
+}
+.cat-section-badge.critical{background:#200808;color:#ff7070;}
+.cat-section-badge.moderate{background:#1e1200;color:#ffaa44;}
+.cat-section-badge.good{background:#071a10;color:#4dd49a;}
+
+/* CTA */
+.cta-block{
+  margin:16px 20px 0;
+  background:linear-gradient(135deg,var(--shift-dim),var(--shift));
+  border-radius:14px;padding:24px;text-align:center;
+}
+.cta-title{font-size:17px;font-weight:700;margin-bottom:6px;}
+.cta-sub{font-size:13px;opacity:0.75;margin-bottom:18px;line-height:1.5;}
+.cta-btn{
+  display:inline-block;background:#fff;color:var(--shift-dark);
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px;font-weight:700;
+  padding:13px 24px;border-radius:8px;
+  text-decoration:none;border:none;cursor:pointer;
+}
+
+.report-footer{
+  text-align:center;padding:28px 20px 0;
+  font-size:10px;color:#252525;
+  font-family:'Space Mono',monospace;
+}
+
+/* ════════════════════
+   VIEW 5 — ADMIN
+════════════════════ */
+#v-admin{ padding-bottom:80px; }
+
+.admin-section{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:20px;margin-bottom:16px;
+}
+.admin-section-title{
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--shift);margin-bottom:16px;
+}
+
+.code-display{
+  background:var(--black);border:1px solid var(--border-lit);
+  border-radius:8px;padding:14px 16px;
+  font-family:'Space Mono',monospace;
+  font-size:20px;font-weight:700;
+  letter-spacing:0.15em;color:var(--gold);
+  text-align:center;margin-bottom:12px;
+  min-height:52px;display:flex;align-items:center;justify-content:center;
+}
+
+.btn-sm{
+  padding:10px 16px;font-size:13px;
+  width:auto;border-radius:8px;
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;cursor:pointer;border:none;
+  transition:background 0.2s;
+}
+.btn-sm.primary{background:var(--shift);color:#fff;}
+.btn-sm.primary:hover{background:var(--shift-dark);}
+.btn-sm.outline{
+  background:transparent;color:var(--grey-400);
+  border:1px solid var(--border-lit);
+}
+.btn-sm.outline:hover{color:var(--white);border-color:var(--grey-400);}
+
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+
+.history-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+  font-size:13px;gap:10px;
+}
+.history-item:last-child{border-bottom:none;}
+.hi-name{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hi-code{
+  font-family:'Space Mono',monospace;font-size:11px;
+  color:var(--gold);background:var(--gold-bg);
+  padding:2px 8px;border-radius:4px;flex-shrink:0;
+}
+.hi-used{font-size:10px;color:var(--grey-400);flex-shrink:0;}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--green);color:#fff;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
+  padding:10px 20px;border-radius:8px;
+  opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;
+  z-index:999;
+}
+.toast.show{opacity:1;}
+
+/* ── ADMIN SECRET ACCESS ── */
+#admin-modal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.85);z-index:9999;
+  align-items:center;justify-content:center;
+}
+#admin-modal.open{display:flex;}
+.admin-modal-box{
+  background:var(--surface2);border:1px solid var(--border-lit);
+  border-radius:14px;padding:32px 28px;width:100%;max-width:320px;
+  text-align:center;
+}
+.admin-modal-title{
+  font-family:'Space Mono',monospace;font-size:11px;
+  font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--shift);margin-bottom:20px;
+}
+.admin-modal-box input{
+  text-align:center;letter-spacing:0.15em;font-size:18px;
+  margin-bottom:14px;
+}
+.admin-modal-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+.admin-modal-cancel{
+  background:none;border:none;color:var(--grey-400);
+  font-size:12px;cursor:pointer;margin-top:10px;
+  font-family:'Space Grotesk',sans-serif;
+}
+.admin-modal-cancel:hover{color:var(--white);}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════
+     VIEW 1 — UPLOAD
+══════════════════════════════ -->
+<div id="v-upload" class="view active">
+  <div class="logo-bar">
+    <div class="logo"><div class="logo-dot"></div>Shift Newcal</div>
+    <button class="admin-link" onclick="showView('v-admin')">Admin ↗</button>
+  </div>
+  <div class="wrap">
+    <div class="inner" style="padding:36px 0 80px">
+      <div class="page-title">Découvrez en 30 Secondes les obstacles qui empêchent votre page Facebook d'être efficace.</div><div class="page-sub-hook">Simple. Facile. Rapide — Gratuit.</div>
+      <div class="page-sub">Prenez jusqu'à 20 captures d'écran de votre page Facebook telle qu'elle est, de haut en bas — sans rien modifier. Déposez-les ici.</div>
+
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" accept="image/*" multiple/>
+        <div class="drop-icon">
+  <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="10" width="44" height="32" rx="4" stroke="#1a7a3c" stroke-width="2" fill="none"/>
+    <circle cx="26" cy="26" r="8" stroke="#1a7a3c" stroke-width="2" fill="none"/>
+    <circle cx="26" cy="26" r="3" fill="#1a7a3c"/>
+    <rect x="18" y="7" width="16" height="6" rx="2" stroke="#1a7a3c" stroke-width="2" fill="none"/>
+    <circle cx="40" cy="16" r="2" fill="#1a7a3c"/>
+  </svg>
+</div>
+        <div class="drop-title">Déposez vos captures d'écran ici</div>
+        <div class="drop-sub">JPG · PNG · WEBP — 20 captures d'écran maximum</div>
+      </div>
+
+      <div class="file-count" id="file-count">Aucun fichier sélectionné</div>
+      <div id="previews"></div>
+
+      
+      </div>
+
+
+
+
+      <div class="error-box" id="upload-error"></div>
+      <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
+        <span>✦</span> Démarrer le diagnostic
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     VIEW 2 — LOADING
+══════════════════════════════ -->
+<div id="v-loading" class="view">
+  <div style="max-width:520px;margin:0 auto;padding:90px 20px;text-align:center;">
+    <div class="loader-ring"></div>
+    <div class="loader-title">Analyse en cours…</div>
+    <div class="loader-steps" id="loader-steps">
+      <div class="lstep" id="ls1"><span class="lstep-icon">📷</span> Lecture des captures</div>
+      <div class="lstep" id="ls2"><span class="lstep-icon">🔍</span> Analyse des 22 points marketing</div>
+      <div class="lstep" id="ls3"><span class="lstep-icon">📊</span> Calcul des scores par catégorie</div>
+      <div class="lstep" id="ls4"><span class="lstep-icon">✍️</span> Rédaction des recommandations</div>
+      <div class="lstep" id="ls5"><span class="lstep-icon">🔒</span> Génération du rapport freemium</div>
+      <div class="lstep" id="ls6"><span class="lstep-icon">✅</span> Rapport prêt</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     VIEW 3 — FREE REPORT
+══════════════════════════════ -->
+<div id="v-free" class="view">
+  <div class="logo-bar">
+    <div class="logo"><div class="logo-dot"></div>Shift Newcal</div>
+    <button class="admin-link" onclick="showView('v-upload')">← Nouveau diagnostic</button>
+  </div>
+
+  <div class="report-header wrap">
+    <div class="rh-brand">Diagnostic Facebook — Aperçu gratuit</div>
+    <div class="rh-name" id="f-biz-name">—</div>
+    <div class="rh-sub" id="f-date">—</div>
+  </div>
+
+  <div class="global-score-block wrap">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80">
+        <circle class="r-bg" cx="40" cy="40" r="34"/>
+        <circle class="r-fill" id="f-ring" cx="40" cy="40" r="34"
+          stroke-dasharray="213.63" stroke-dashoffset="213.63"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-num" id="f-score">—</div>
+        <div class="ring-denom">/10</div>
+      </div>
+    </div>
+    <div class="score-text">
+      <div class="verdict" id="f-verdict">—</div>
+      <div class="intro" id="f-intro">—</div>
+    </div>
+  </div>
+
+  <div class="categories wrap">
+    <div class="cat-eyebrow">Résultats par catégorie</div>
+    <div id="f-cats"></div>
+  </div>
+
+  <div class="lock-banner wrap" style="margin:0 20px;">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">Rapport complet disponible</div>
+    <div class="lock-sub">Les 22 points détaillés avec explication et action concrète pour chaque problème identifié.</div>
+    <div class="lock-price">2 900 XPF</div>
+    <div class="lock-features">
+      <div class="lock-feat">22 points de diagnostic détaillés</div>
+      <div class="lock-feat">Score par catégorie + score global</div>
+      <div class="lock-feat">Explication de chaque problème</div>
+      <div class="lock-feat">Action concrète pour chaque point</div>
+      <div class="lock-feat">Badge Shift Newcal Certifié</div>
+    </div>
+    <button class="btn btn-gold" style="margin-bottom:14px;" onclick="alert('Paiement à configurer — contactez Shift Newcal.')">Obtenir le rapport complet →</button>
+    <div class="or-divider">J'ai déjà un code d'accès</div>
+    <div class="code-unlock">
+      <input type="text" id="access-code" placeholder="CODE-XXXXX" maxlength="12" oninput="this.value=this.value.toUpperCase()"/>
+      <button class="btn-unlock" onclick="unlockReport()">Déverrouiller</button>
+    </div>
+    <div class="code-error" id="code-error">Code incorrect. Vérifie et réessaie.</div>
+  </div>
+
+  <div class="report-footer wrap">
+    shiftnewcal.nc &nbsp;·&nbsp; Aperçu généré le <span id="f-date2">—</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     VIEW 4 — FULL REPORT
+══════════════════════════════ -->
+<div id="v-full" class="view">
+  <div class="logo-bar">
+    <div class="logo"><div class="logo-dot"></div>Shift Newcal</div>
+    <button class="admin-link" onclick="showView('v-free')">← Aperçu</button>
+  </div>
+
+  <div class="report-header wrap">
+    <div class="full-badge">★ Diagnostic Complet Certifié</div>
+    <div class="rh-name" id="p-biz-name">—</div>
+    <div class="rh-sub" id="p-date">—</div>
+  </div>
+
+  <div class="global-score-block wrap">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 80 80">
+        <circle class="r-bg" cx="40" cy="40" r="34"/>
+        <circle class="r-fill" id="p-ring" cx="40" cy="40" r="34"
+          stroke-dasharray="213.63" stroke-dashoffset="213.63"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-num" id="p-score">—</div>
+        <div class="ring-denom">/10</div>
+      </div>
+    </div>
+    <div class="score-text">
+      <div class="verdict" id="p-verdict">—</div>
+      <div class="intro" id="p-intro">—</div>
+    </div>
+  </div>
+
+  <div class="categories wrap" id="p-full-content"></div>
+
+  <div class="cta-block" style="margin:16px 20px 0;">
+    <div class="cta-title">Prêt à tout corriger ?</div>
+    <div class="cta-sub">On s'occupe de votre page Facebook en moins d'une semaine — sans que vous ayez quoi que ce soit à faire.</div>
+    <a class="cta-btn" id="p-cta" href="#" target="_blank">Parler à Shift Newcal →</a>
+  </div>
+
+  <div class="report-footer wrap">
+    shiftnewcal.nc &nbsp;·&nbsp; Rapport certifié généré le <span id="p-date2">—</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     VIEW 5 — ADMIN
+══════════════════════════════ -->
+<div id="v-admin" class="view">
+  <div class="logo-bar">
+    <div class="logo"><div class="logo-dot"></div>Admin</div>
+    <button class="admin-link" onclick="showView('v-upload')">← Retour</button>
+  </div>
+  <div class="wrap" style="padding:28px 0 80px;">
+
+    <div class="admin-section">
+      <div class="admin-section-title">Générer un code d'accès</div>
+      <div class="field">
+        <label>Nom du client</label>
+        <input type="text" id="admin-client-name" placeholder="Roulotte Chez Marie"/>
+      </div>
+      <div class="code-display" id="generated-code">—</div>
+      <div class="btn-row">
+        <button class="btn-sm primary" onclick="generateCode()">Générer le code</button>
+        <button class="btn-sm outline" id="btn-copy-code" onclick="copyCode()" style="display:none">Copier</button>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Codes générés</div>
+      <div id="code-history">
+        <div style="font-size:13px;color:var(--grey-400);">Aucun code généré pour le moment.</div>
+      </div>
+    </div>
+
+    <div class="admin-section">
+      <div class="admin-section-title">Message Messenger à envoyer</div>
+      <div style="background:var(--black);border:1px solid var(--border-lit);border-radius:8px;padding:14px;font-size:13px;color:var(--grey-300);line-height:1.7;" id="messenger-template">
+        Générez d'abord un code pour voir le message type.
+      </div>
+      <button class="btn-sm outline" style="margin-top:10px;" onclick="copyMessengerMsg()">Copier le message</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════
+// SUPABASE
+// ══════════════════════════════
+const SUPABASE_URL = 'https://vdcbtzvsmzsvallmsvyk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkY2J0enZzbXpzdmFsbG1zdnlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0ODkzMzcsImV4cCI6MjA5ODA2NTMzN30.i45oaqSZwNqd0ns7d2z99rC8mBFeB59ad2Iet4NU01I';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function testConnection(){
+  try {
+    const { error } = await db.from('access_codes').select('id').limit(1);
+    const dot   = document.getElementById('db-dot');
+    const label = document.getElementById('db-label');
+    if(error){ dot.className='db-dot'; label.textContent='Erreur DB'; }
+    else { dot.className='db-dot connected'; label.textContent='Supabase connecté'; }
+  } catch(e){ document.getElementById('db-label').textContent='Hors ligne'; }
+}
+
+// ══════════════════════════════
+// STATE
+// ══════════════════════════════
+let uploadedFiles = [];
+let reportData    = null;
+let lastCode      = '';
+
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id === 'v-admin'){ testConnection(); loadCodeHistory(); }
+}
+
+// ══════════════════════════════
+// FILE HANDLING
+// ══════════════════════════════
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', ()=> dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e=>{ e.preventDefault(); dropZone.classList.remove('over'); addFiles([...e.dataTransfer.files]); });
+fileInput.addEventListener('change', ()=>{ addFiles([...fileInput.files]); fileInput.value=''; });
+
+function addFiles(files){
+  files.filter(f=>f.type.startsWith('image/')).forEach(f=>{
+    if(uploadedFiles.length >= 20){ showToast('Maximum 20 captures atteint atteint'); return; }
+    const idx = uploadedFiles.push(f) - 1;
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb-wrap';
+    wrap.id = `thumb-${idx}`;
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    const rm = document.createElement('button');
+    rm.className = 'thumb-rm';
+    rm.textContent = '×';
+    rm.onclick = ()=>{ uploadedFiles[idx]=null; wrap.remove(); updateCount(); };
+    wrap.appendChild(img); wrap.appendChild(rm);
+    document.getElementById('previews').appendChild(wrap);
+    updateCount();
+  });
+}
+
+function updateCount(){
+  const n = uploadedFiles.filter(Boolean).length;
+  const el = document.getElementById('file-count');
+  el.innerHTML = n === 0
+    ? 'Aucun fichier sélectionné'
+    : `<span>${n}</span> capture${n>1?'s':''} ajoutée${n>1?'s':''}`;
+}
+
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=> res(r.result.split(',')[1]);
+    r.onerror = ()=> rej(new Error('Lecture échouée'));
+    r.readAsDataURL(file);
+  });
+}
+
+// ══════════════════════════════
+// LOADER ANIMATION
+// ══════════════════════════════
+async function animateLoader(){
+  const ids = ['ls1','ls2','ls3','ls4','ls5','ls6'];
+  document.getElementById(ids[0]).classList.add('active');
+  for(let i=0;i<ids.length-1;i++){
+    await delay(900 + Math.random()*700);
+    document.getElementById(ids[i]).classList.remove('active');
+    document.getElementById(ids[i]).classList.add('done');
+    document.getElementById(ids[i+1]).classList.add('active');
+  }
+}
+
+function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// ══════════════════════════════
+// ANALYSIS
+// ══════════════════════════════
+async function startAnalysis(){
+  const bizName = document.getElementById('biz-name').value.trim();
+  const errBox  = document.getElementById('upload-error');
+  errBox.style.display = 'none';
+
+  const validFiles = uploadedFiles.filter(Boolean);
+  if(validFiles.length < 1){ showErr(errBox,'Ajoutez au moins 1 capture d\'écran.'); return; }
+  if(!bizName){ showErr(errBox,'Entre le nom du business client.'); return; }
+
+  document.getElementById('btn-analyse').disabled = true;
+  showView('v-loading');
+  animateLoader();
+
+  try {
+    const imageContents = await Promise.all(
+      validFiles.map(async f=>({
+        type:'image',
+        source:{ type:'base64', media_type:f.type, data: await fileToBase64(f) }
+      }))
+    );
+
+    const system = `Tu es un expert en marketing digital et en conversion pour les petites entreprises locales (food trucks, roulottes, salons, garages, restaurants) en Nouvelle-Calédonie.
+Tu analyses des captures d'écran de pages Facebook professionnelles et fournis un diagnostic structuré, direct, et actionnable en français.
+
+RÉPONDS UNIQUEMENT EN JSON VALIDE. Aucun texte avant ou après. Aucun backtick markdown.
+
+Structure JSON attendue :
+{
+  "score_global": <entier 1-10>,
+  "verdict": "<titre court 3-5 mots>",
+  "intro": "<phrase d'introduction personnalisée max 25 mots>",
+  "categories": [
+    {
+      "nom": "<nom de la catégorie>",
+      "score": <entier 1-10>,
+      "statut": "<critical|moderate|good>",
+      "recommandation_cle": "<action prioritaire la plus importante, 1 phrase impérative>",
+      "points": [
+        {
+          "nom": "<nom du point, max 6 mots>",
+          "statut": "<critical|moderate|good>",
+          "explication": "<ce qui va ou ne va pas, 1-2 phrases concrètes, vouvoiement>",
+          "action": "<action concrète à faire, 1 phrase impérative>"
+        }
+      ]
+    }
+  ]
+}
+
+Les 7 catégories OBLIGATOIRES avec leurs points internes :
+
+1. "Identité Visuelle & Première Impression" — points : Photo de profil, Photo de couverture, Cohérence visuelle, Nom de page optimisé
+
+2. "Informations Business" — points : Catégorie de page, Description & accroche, Horaires d'ouverture, Adresse & localisation, Coordonnées (tel/email/site)
+
+3. "Bouton d'Action (CTA)" — points : Type de bouton choisi, Lien du bouton actif, Pertinence avec l'activité
+
+4. "Contenu & Publications" — points : Fréquence de publication, Qualité visuelle des posts, Diversité des formats (vidéo/photo/texte), Présence d'appels à l'action dans les posts
+
+5. "Engagement & Communauté" — points : Nombre d'abonnés & tendance, Réponses aux commentaires, Réactivité aux messages, Qualité des interactions
+
+6. "Preuve Sociale & Confiance" — points : Avis clients & note, Nombre et récence des avis, Réponses aux avis, Badge de réactivité messages
+
+7. "Conversion & Offre" — points : Post épinglé stratégique, Offre ou promotion visible, Prix mentionnés, Clarté du service proposé
+
+Règles de notation :
+- critical = problème qui fait perdre des clients aujourd'hui (score catégorie 1-4)
+- moderate = point à améliorer mais pas bloquant (score 5-6)
+- good = point positif et efficace (score 7-10)
+- score_global = moyenne pondérée des catégories, arrondi à l'entier
+- Si un point n'est pas visible sur les captures d'écran, note-le "moderate" avec explication "Non visible sur les captures — à vérifier directement sur la page."
+- Vouvoiement pour le client, ton direct et professionnel`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:4000,
+        system,
+        messages:[{
+          role:'user',
+          content:[
+            ...imageContents,
+            { type:'text', text:`Voici ${validFiles.length} captures d'écran d'une page Facebook. Extrais le nom exact du business depuis les captures, puis analyse les 7 catégories et les 22 points. Retourne uniquement le JSON du diagnostic.` }
+          ]
+        }]
+      })
+    });
+
+    if(!resp.ok){
+      const e = await resp.json();
+      throw new Error(e.error?.message || `Erreur API ${resp.status}`);
+    }
+
+    const data  = await resp.json();
+    const raw   = data.content.map(b=>b.text||'').join('');
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const result = JSON.parse(clean);
+
+    await delay(600);
+
+    const bizName = result.business_name || 'Business';
+    reportData = {
+      bizName,
+      ctaLink: 'https://yvanntemaiana.github.io/shift-newcal-diagnostic',
+      date: new Date().toLocaleDateString('fr-FR'),
+      ...result
+    };
+
+    // Save report to Supabase
+    await db.from('reports').insert({ client_name: result.business_name || 'Inconnu', report_data: reportData });
+
+    renderFreeReport(reportData);
+    showView('v-free');
+
+  } catch(err){
+    showView('v-upload');
+    document.getElementById('btn-analyse').disabled = false;
+    showErr(document.getElementById('upload-error'), `Erreur : ${err.message}`);
+  }
+}
+
+// ══════════════════════════════
+// RENDER FREE REPORT
+// ══════════════════════════════
+function renderFreeReport(d){
+  document.getElementById('f-biz-name').textContent = d.bizName;
+  document.getElementById('f-score').textContent    = d.score_global;
+  document.getElementById('f-verdict').textContent  = d.verdict;
+  document.getElementById('f-intro').textContent    = d.intro;
+  const dateStr = `Diagnostic du ${d.date}`;
+  document.getElementById('f-date').textContent  = dateStr;
+  document.getElementById('f-date2').textContent = d.date;
+
+  animateRing('f-ring', d.score_global, 213.63);
+
+  const catHTML = (d.categories||[]).map(c=>`
+    <div class="cat-card ${c.statut}">
+      <div class="cat-top">
+        <span class="cat-name">${c.nom}</span>
+        <span class="cat-score-pill">${c.score}/10</span>
+      </div>
+      <div class="cat-reco">→ ${c.recommandation_cle}</div>
+    </div>
+  `).join('');
+  document.getElementById('f-cats').innerHTML = catHTML;
+}
+
+// ══════════════════════════════
+// RENDER FULL REPORT
+// ══════════════════════════════
+function renderFullReport(d){
+  document.getElementById('p-biz-name').textContent = d.bizName;
+  document.getElementById('p-score').textContent    = d.score_global;
+  document.getElementById('p-verdict').textContent  = d.verdict;
+  document.getElementById('p-intro').textContent    = d.intro;
+  document.getElementById('p-date').textContent     = `Diagnostic certifié du ${d.date}`;
+  document.getElementById('p-date2').textContent    = d.date;
+  document.getElementById('p-cta').href             = d.ctaLink;
+
+  animateRing('p-ring', d.score_global, 213.63);
+
+  const statusLabels = { critical:'Critique', moderate:'À améliorer', good:'OK' };
+  let html = '';
+  (d.categories||[]).forEach(c=>{
+    html += `<div class="cat-section-title">${c.nom}<span class="cat-section-badge ${c.statut}">${c.score}/10</span></div>`;
+    (c.points||[]).forEach((p,i)=>{
+      html += `
+      <div class="detail-card ${p.statut}" style="animation-delay:${i*0.05}s">
+        <div class="dc-top">
+          <span class="dc-name">${p.nom}</span>
+          <span class="status-pill">${statusLabels[p.statut]||p.statut}</span>
+        </div>
+        <div class="dc-explain">${p.explication}</div>
+        <div class="dc-fix">→ ${p.action}</div>
+      </div>`;
+    });
+  });
+  document.getElementById('p-full-content').innerHTML = html;
+}
+
+// ══════════════════════════════
+// RING ANIMATION
+// ══════════════════════════════
+function animateRing(id, score, circ){
+  const offset = circ - (score/10)*circ;
+  const color  = score>=7 ? '#18a060' : score>=4 ? '#e87800' : '#e02020';
+  const ring   = document.getElementById(id);
+  ring.style.stroke = color;
+  setTimeout(()=>{ ring.style.strokeDashoffset = offset; }, 150);
+}
+
+// ══════════════════════════════
+// UNLOCK — Supabase
+// ══════════════════════════════
+async function unlockReport(){
+  const input = document.getElementById('access-code').value.trim().toUpperCase();
+  const errEl = document.getElementById('code-error');
+  errEl.style.display = 'none';
+
+  if(!input){ errEl.style.display='block'; return; }
+
+  const { data, error } = await db
+    .from('access_codes')
+    .select('*')
+    .eq('code', input)
+    .eq('used', false)
+    .single();
+
+  if(error || !data){ errEl.style.display='block'; return; }
+
+  await db.from('access_codes')
+    .update({ used: true, used_at: new Date().toISOString() })
+    .eq('code', input);
+
+  renderFullReport(reportData);
+  showView('v-full');
+  showToast('Rapport complet déverrouillé ✓');
+}
+
+// ══════════════════════════════
+// ADMIN — CODE GENERATION (Supabase)
+// ══════════════════════════════
+async function generateCode(){
+  const name = document.getElementById('admin-client-name').value.trim();
+  if(!name){ showToast('Entrez le nom du client'); return; }
+
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'SN-';
+  for(let i=0;i<5;i++) code += chars[Math.floor(Math.random()*chars.length)];
+
+  const { error } = await db.from('access_codes').insert({ code, client_name: name });
+  if(error){ showToast('Erreur Supabase — réessaie'); return; }
+
+  lastCode = code;
+  document.getElementById('generated-code').textContent = code;
+  document.getElementById('btn-copy-code').style.display = 'inline-flex';
+  updateMessengerTemplate(name, code);
+  loadCodeHistory();
+  showToast('Code généré et sauvegardé ✓');
+}
+
+function copyCode(){
+  if(!lastCode){ return; }
+  navigator.clipboard.writeText(lastCode).then(()=> showToast('Code copié !'));
+}
+
+function updateMessengerTemplate(name, code){
+  document.getElementById('messenger-template').innerHTML =
+    `Bonjour ${name} 👋<br><br>` +
+    `Votre diagnostic Facebook est prêt ! 🎯<br><br>` +
+    `👉 <strong>Lien du rapport :</strong><br>https://yvanntemaiana.github.io/shift-newcal-diagnostic<br><br>` +
+    `Pour débloquer le rapport complet avec les 22 points détaillés :<br>` +
+    `🔑 <strong>Votre code d'accès : ${code}</strong><br><br>` +
+    `Entrez ce code sur la page du rapport pour voir l'analyse complète.<br><br>` +
+    `N'hésitez pas si vous avez des questions 😊<br>` +
+    `— Shift Newcal`;
+}
+
+function copyMessengerMsg(){
+  const txt = document.getElementById('messenger-template').innerText;
+  navigator.clipboard.writeText(txt).then(()=> showToast('Message copié !'));
+}
+
+async function loadCodeHistory(){
+  const el = document.getElementById('code-history');
+  const { data, error } = await db
+    .from('access_codes')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if(error || !data?.length){
+    el.innerHTML = '<div style="font-size:13px;color:var(--grey-400);">Aucun code généré.</div>';
+    return;
+  }
+
+  el.innerHTML = data.map(c=>`
+    <div class="history-item">
+      <span class="hi-name">${c.client_name}</span>
+      <span class="hi-code">${c.code}</span>
+      <span class="hi-used">${c.used ? '✓ utilisé' : new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════
+// UTILS
+// ══════════════════════════════
+function showErr(el, msg){ el.textContent = msg; el.style.display = 'block'; }
+
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2500);
+}
+</script>
+
+<!-- ── ADMIN SECRET MODAL ── -->
+<div id="admin-modal">
+  <div class="admin-modal-box">
+    <div class="admin-modal-title">Accès Admin</div>
+    <input type="password" id="admin-pw" placeholder="••••••" maxlength="20" onkeydown="if(event.key==='Enter')checkAdminPw()"/>
+    <button class="btn btn-primary" onclick="checkAdminPw()">Entrer</button>
+    <div class="admin-modal-error" id="admin-pw-error">Mot de passe incorrect.</div>
+    <br><button class="admin-modal-cancel" onclick="closeAdminModal()">Annuler</button>
+  </div>
+</div>
+</body>
+</html>
