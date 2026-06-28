@@ -919,10 +919,10 @@ function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
 async function startAnalysis(){
   const errBox  = document.getElementById('upload-error');
   errBox.style.display = 'none';
+  let bizName = 'Business';
 
   const validFiles = uploadedFiles.filter(Boolean);
   if(validFiles.length < 1){ showErr(errBox,'Ajoutez au moins 1 capture d\'écran.'); return; }
-  if(!bizName){ showErr(errBox,'Entre le nom du business client.'); return; }
 
   document.getElementById('btn-analyse').disabled = true;
   showView('v-loading');
