@@ -989,9 +989,9 @@ Règles de notation :
 - Si un point n'est pas visible sur les captures d'écran, note-le "moderate" avec explication "Non visible sur les captures — à vérifier directement sur la page."
 - Vouvoiement pour le client, ton direct et professionnel`;
 
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    const resp = await fetch('https://vdcbtzvsmzsvallmsvyk.supabase.co/functions/v1/anthropic-proxy',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
       body: JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens:4000,
