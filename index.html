@@ -4,50 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Shift Newcal — Diagnostic Facebook</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// ══════════════════════════════
-// SECRET ADMIN ACCESS
-// ══════════════════════════════
-const ADMIN_PASSWORD = 'shiftnewcal2026';
-// Long press on logo (800ms) to open admin
-let pressTimer = null;
-let footerClickCount = 0;
-let footerClickTimer = null;
-
-function handleFooterClick(){
-  footerClickCount++;
-  clearTimeout(footerClickTimer);
-  footerClickTimer = setTimeout(()=>{ footerClickCount = 0; }, 800);
-  if(footerClickCount >= 3){
-    footerClickCount = 0;
-    openAdminModal();
-  }
-}
-
-
-function openAdminModal(){
-  document.getElementById('admin-pw').value = '';
-  document.getElementById('admin-pw-error').style.display = 'none';
-  document.getElementById('admin-modal').classList.add('open');
-  setTimeout(()=> document.getElementById('admin-pw').focus(), 100);
-}
-
-function closeAdminModal(){
-  document.getElementById('admin-modal').classList.remove('open');
-}
-
-function checkAdminPw(){
-  const pw = document.getElementById('admin-pw').value;
-  if(pw === ADMIN_PASSWORD){
-    closeAdminModal();
-    showView('v-admin');
-  } else {
-    document.getElementById('admin-pw-error').style.display = 'block';
-    document.getElementById('admin-pw').value = '';
-    document.getElementById('admin-pw').focus();
-  }
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
@@ -375,7 +332,8 @@ input:focus{border-color:var(--shift);}
 
 /* LOCK banner */
 .lock-banner{
-  margin:8px 20px 0;
+  margin:8px auto 0;
+  max-width:480px;
   background:linear-gradient(135deg,#0e0e0e,#181510);
   border:1px solid var(--gold);
   border-radius:14px;padding:24px;text-align:center;
@@ -836,6 +794,49 @@ input:focus{border-color:var(--shift);}
 
 <script>
 // ══════════════════════════════
+// SECRET ADMIN ACCESS
+// ══════════════════════════════
+const ADMIN_PASSWORD = 'shiftnewcal2026';
+// Long press on logo (800ms) to open admin
+let pressTimer = null;
+let footerClickCount = 0;
+let footerClickTimer = null;
+
+function handleFooterClick(){
+  footerClickCount++;
+  clearTimeout(footerClickTimer);
+  footerClickTimer = setTimeout(()=>{ footerClickCount = 0; }, 800);
+  if(footerClickCount >= 3){
+    footerClickCount = 0;
+    openAdminModal();
+  }
+}
+
+
+function openAdminModal(){
+  document.getElementById('admin-pw').value = '';
+  document.getElementById('admin-pw-error').style.display = 'none';
+  document.getElementById('admin-modal').classList.add('open');
+  setTimeout(()=> document.getElementById('admin-pw').focus(), 100);
+}
+
+function closeAdminModal(){
+  document.getElementById('admin-modal').classList.remove('open');
+}
+
+function checkAdminPw(){
+  const pw = document.getElementById('admin-pw').value;
+  if(pw === ADMIN_PASSWORD){
+    closeAdminModal();
+    showView('v-admin');
+  } else {
+    document.getElementById('admin-pw-error').style.display = 'block';
+    document.getElementById('admin-pw').value = '';
+    document.getElementById('admin-pw').focus();
+  }
+}
+
+// ══════════════════════════════
 // SUPABASE
 // ══════════════════════════════
 const SUPABASE_URL = 'https://vdcbtzvsmzsvallmsvyk.supabase.co';
@@ -960,6 +961,7 @@ async function startAnalysis(){
   document.getElementById('btn-analyse').disabled = true;
   showView('v-loading');
   animateLoader();
+  startTimer();
 
   try {
     const imageContents = await Promise.all(
@@ -1050,7 +1052,21 @@ Règles de notation :
 
     await delay(600);
 
-    const bizName = (result.business_name && result.business_name !== 'null') ? result.business_name : 'Page non identifiée';
+    // Extract business name
+    let bizName = 'Page analysée';
+    if(result.business_name && result.business_name.length > 1 && result.business_name !== 'null'){
+      bizName = result.business_name;
+    } else {
+      // Parse first capitalized word group from intro
+      const words = (result.intro || '').split(' ');
+      const nameWords = [];
+      for(const w of words){
+        if(w.length > 0 && w[0] === w[0].toUpperCase() && w[0] !== w[0].toLowerCase()){
+          nameWords.push(w);
+        } else { break; }
+      }
+      if(nameWords.length > 0) bizName = nameWords.join(' ').replace(/[,\.]$/, '');
+    }
     reportData = {
       bizName,
       ctaLink: 'https://yvanntemaiana.github.io/shift-newcal-diagnostic',
