@@ -9,16 +9,18 @@
 // SECRET ADMIN ACCESS
 // ══════════════════════════════
 const ADMIN_PASSWORD = 'shiftnewcal2026';
-let keyBuffer = '';
+let logoClickCount = 0;
+let logoClickTimer = null;
 
-document.addEventListener('keydown', e => {
-  keyBuffer += e.key.toUpperCase();
-  if(keyBuffer.length > 5) keyBuffer = keyBuffer.slice(-5);
-  if(keyBuffer === 'ADMIN'){
-    keyBuffer = '';
+function handleLogoClick(){
+  logoClickCount++;
+  clearTimeout(logoClickTimer);
+  logoClickTimer = setTimeout(()=>{ logoClickCount = 0; }, 600);
+  if(logoClickCount >= 3){
+    logoClickCount = 0;
     openAdminModal();
   }
-});
+}
 
 function openAdminModal(){
   document.getElementById('admin-pw').value = '';
@@ -606,7 +608,7 @@ input:focus{border-color:var(--shift);}
 ══════════════════════════════ -->
 <div id="v-upload" class="view active">
   <div class="logo-bar">
-    <div class="logo"><div class="logo-dot"></div>Shift Newcal</div>
+    <div class="logo" id="logo-trigger" onclick="handleLogoClick()"><div class="logo-dot"></div>Shift Newcal</div>
     <button class="admin-link" onclick="showView('v-admin')">Admin ↗</button>
   </div>
   <div class="wrap">
