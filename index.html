@@ -262,7 +262,13 @@ input:focus{border-color:var(--shift);}
   margin:0 auto 24px;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-.loader-title{font-size:17px;font-weight:600;margin-bottom:16px;}
+.loader-title{font-size:17px;font-weight:600;margin-bottom:8px;}
+.loader-timer{
+  font-family:'Space Mono',monospace;
+  font-size:32px;font-weight:700;
+  color:var(--shift);margin-bottom:20px;
+  letter-spacing:0.1em;
+}
 .loader-steps{text-align:left;display:inline-block;}
 .lstep{
   font-size:13px;color:var(--grey-600);
@@ -663,6 +669,7 @@ input:focus{border-color:var(--shift);}
   <div style="max-width:520px;margin:0 auto;padding:90px 20px;text-align:center;">
     <div class="loader-ring"></div>
     <div class="loader-title">Analyse en cours…</div>
+    <div class="loader-timer" id="loader-timer">00:00</div>
     <div class="loader-steps" id="loader-steps">
       <div class="lstep" id="ls1"><span class="lstep-icon">📷</span> Lecture des captures</div>
       <div class="lstep" id="ls2"><span class="lstep-icon">🔍</span> Analyse des 22 points marketing</div>
@@ -900,11 +907,26 @@ function updateCount(){
 
 function fileToBase64(file){
   return new Promise((res,rej)=>{
-    const r = new FileReader();
-    r.onload = ()=> res(r.result.split(',')[1]);
-    r.onerror = ()=> rej(new Error('Lecture échouée'));
-    r.readAsDataURL(file);
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1024;
+      let w = img.width, h = img.height;
+      if(w > MAX || h > MAX){
+        if(w > h){ h = Math.round(h * MAX / w); w = MAX; }
+        else { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const data = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
+      res(data);
+    };
+    img.onerror = () => rej(new Error('Lecture échouée'));
+    img.src = url;
   });
+});
 }
 
 // ══════════════════════════════
@@ -1038,6 +1060,7 @@ Règles de notation :
     // Save report to Supabase
     await db.from('reports').insert({ client_name: result.business_name || 'Inconnu', report_data: reportData });
 
+    stopTimer();
     renderFreeReport(reportData);
     showView('v-free');
 
@@ -1210,6 +1233,33 @@ async function loadCodeHistory(){
       <span class="hi-used">${c.used ? '✓ utilisé' : new Date(c.created_at).toLocaleDateString('fr-FR')}</span>
     </div>
   `).join('');
+}
+
+// ══════════════════════════════
+// TIMER
+// ══════════════════════════════
+let timerInterval = null;
+let timerSeconds  = 0;
+
+function startTimer(){
+  timerSeconds = 0;
+  updateTimerDisplay();
+  timerInterval = setInterval(()=>{
+    timerSeconds++;
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function updateTimerDisplay(){
+  const m = String(Math.floor(timerSeconds / 60)).padStart(2,'0');
+  const s = String(timerSeconds % 60).padStart(2,'0');
+  const el = document.getElementById('loader-timer');
+  if(el) el.textContent = `${m}:${s}`;
 }
 
 // ══════════════════════════════
