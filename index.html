@@ -11,24 +11,19 @@
 const ADMIN_PASSWORD = 'shiftnewcal2026';
 // Long press on logo (800ms) to open admin
 let pressTimer = null;
+let footerClickCount = 0;
+let footerClickTimer = null;
 
-function initLogoPress(){
-  const logo = document.getElementById('logo-trigger');
-  if(!logo) return;
-
-  logo.addEventListener('mousedown', ()=>{
-    pressTimer = setTimeout(openAdminModal, 800);
-  });
-  logo.addEventListener('mouseup', ()=> clearTimeout(pressTimer));
-  logo.addEventListener('mouseleave', ()=> clearTimeout(pressTimer));
-  logo.addEventListener('touchstart', (e)=>{
-    e.preventDefault();
-    pressTimer = setTimeout(openAdminModal, 800);
-  }, {passive:false});
-  logo.addEventListener('touchend', ()=> clearTimeout(pressTimer));
+function handleFooterClick(){
+  footerClickCount++;
+  clearTimeout(footerClickTimer);
+  footerClickTimer = setTimeout(()=>{ footerClickCount = 0; }, 800);
+  if(footerClickCount >= 3){
+    footerClickCount = 0;
+    openAdminModal();
+  }
 }
 
-document.addEventListener('DOMContentLoaded', initLogoPress);
 
 function openAdminModal(){
   document.getElementById('admin-pw').value = '';
@@ -265,9 +260,15 @@ input:focus{border-color:var(--shift);}
 .loader-title{font-size:17px;font-weight:600;margin-bottom:8px;}
 .loader-timer{
   font-family:'Space Mono',monospace;
-  font-size:32px;font-weight:700;
-  color:var(--shift);margin-bottom:20px;
-  letter-spacing:0.1em;
+  font-size:48px;font-weight:700;
+  color:var(--shift);margin-bottom:24px;
+  letter-spacing:0.2em;
+  text-shadow:0 0 20px rgba(26,122,60,0.4);
+  animation:timerPulse 1s ease-in-out infinite;
+}
+@keyframes timerPulse{
+  0%,100%{opacity:1;}
+  50%{opacity:0.6;}
 }
 .loader-steps{text-align:left;display:inline-block;}
 .lstep{
@@ -294,7 +295,7 @@ input:focus{border-color:var(--shift);}
   letter-spacing:0.14em;text-transform:uppercase;
   color:var(--shift);margin-bottom:14px;
 }
-.rh-name{font-size:21px;font-weight:700;margin-bottom:3px;}
+.rh-name{font-size:24px;font-weight:700;margin-bottom:4px;line-height:1.2;}
 .rh-sub{font-size:12px;color:var(--grey-400);}
 
 /* Global score */
@@ -622,7 +623,7 @@ input:focus{border-color:var(--shift);}
 ══════════════════════════════ -->
 <div id="v-upload" class="view active">
   <div class="logo-bar">
-    <div class="logo" id="logo-trigger"><div class="logo-dot"></div>Shift Newcal</div>
+    <div class="logo"><div class="logo-dot"></div>Shift Newcal</div>
     
   </div>
   <div class="wrap">
@@ -655,6 +656,7 @@ input:focus{border-color:var(--shift);}
 
 
       <div class="error-box" id="upload-error"></div>
+      <div style="text-align:center;margin-bottom:16px;"><span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:10px;color:#1a1a1a;cursor:default;font-family:'Space Mono',monospace;user-select:none;">shiftnewcal.nc</span></div>
       <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
         <span>✦</span> Démarrer le diagnostic
       </button>
@@ -1048,7 +1050,7 @@ Règles de notation :
 
     await delay(600);
 
-    const bizName = result.business_name || 'Business';
+    const bizName = (result.business_name && result.business_name !== 'null') ? result.business_name : 'Page non identifiée';
     reportData = {
       bizName,
       ctaLink: 'https://yvanntemaiana.github.io/shift-newcal-diagnostic',
