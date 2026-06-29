@@ -414,7 +414,7 @@ input:focus{border-color:var(--shift);}
   display:flex;align-items:flex-start;
   justify-content:space-between;gap:8px;margin-bottom:8px;
 }
-.dc-name{font-size:13px;font-weight:700;line-height:1.3;}
+.dc-name{font-size:17px;font-weight:700;line-height:1.3;}
 .status-pill{
   font-size:9px;font-weight:700;
   letter-spacing:0.08em;text-transform:uppercase;
@@ -424,7 +424,7 @@ input:focus{border-color:var(--shift);}
 .moderate .status-pill{background:#1e1200;color:#ffaa44;}
 .good .status-pill{background:#071a10;color:#4dd49a;}
 
-.dc-explain{font-size:12px;color:var(--grey-300);line-height:1.55;margin-bottom:8px;}
+.dc-explain{font-size:16px;color:var(--grey-300);line-height:1.55;margin-bottom:8px;}
 .dc-fix{
   font-size:11px;font-weight:600;
   padding:8px 10px;border-radius:6px;line-height:1.5;
@@ -614,10 +614,12 @@ input:focus{border-color:var(--shift);}
 
 
       <div class="error-box" id="upload-error"></div>
-      <div style="text-align:center;margin-bottom:16px;"><span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:10px;color:#1a1a1a;cursor:default;font-family:'Space Mono',monospace;user-select:none;">shiftnewcal.nc</span></div>
       <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
         <span>✦</span> Démarrer le diagnostic
       </button>
+      <div style="text-align:center;margin-top:14px;">
+        <span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:11px;color:#222;cursor:default;font-family:'Space Mono',monospace;user-select:none;letter-spacing:0.08em;">shiftnewcal.nc</span>
+      </div>
     </div>
   </div>
 </div>
@@ -825,7 +827,7 @@ function closeAdminModal(){
 }
 
 function checkAdminPw(){
-  const pw = document.getElementById('admin-pw').value;
+  const pw = document.getElementById('admin-pw').value.trim();
   if(pw === ADMIN_PASSWORD){
     closeAdminModal();
     showView('v-admin');
