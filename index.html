@@ -23,20 +23,7 @@ window.showView = function(id){
 document.addEventListener('DOMContentLoaded', updateStickyBtn);
 
 
-// Show/hide fixed bottom bar based on active view
-function updateFixedBottom(){
-  const bar = document.getElementById('fixed-bottom');
-  if(!bar) return;
-  const uploadActive = document.getElementById('v-upload').classList.contains('active');
-  bar.style.display = uploadActive ? 'block' : 'none';
 }
-// Override showView to update fixed bottom
-const _origShowView = showView;
-function showView(id){
-  _origShowView(id);
-  updateFixedBottom();
-}
-document.addEventListener('DOMContentLoaded', updateFixedBottom);
 
 </script>
 <style>
@@ -157,7 +144,7 @@ input:focus{border-color:var(--shift);}
 
 .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4vw,44px);font-weight:400;line-height:1.05;margin-bottom:10px;color:var(--white);letter-spacing:0.02em;}
 
-.page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-400);letter-spacing:0.08em;background:rgba(255,255,255,0.06);border:1px solid var(--border-lit);border-radius:20px;padding:5px 14px;margin-bottom:14px;}
+.page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-300);letter-spacing:0.08em;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;margin-bottom:14px;}
 .page-sub{font-family:'DM Sans',sans-serif;font-size:clamp(14px,2.5vw,18px);color:var(--grey-300);margin-bottom:18px;line-height:1.6;font-weight:400;text-align:center;}
 
 .drop-zone{border:2px dashed rgba(26,122,60,0.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;position:relative;margin-bottom:10px;background:rgba(26,122,60,0.05);}
@@ -172,7 +159,7 @@ input:focus{border-color:var(--shift);}
 .drop-title{font-size:14px;font-weight:600;margin-bottom:3px;color:var(--white);}
 .drop-sub{font-size:11px;color:var(--grey-400);}
 
-.file-count{font-size:12px;color:var(--grey-400);margin-bottom:8px;min-height:16px;text-align:center;}
+.file-count{font-size:12px;color:var(--grey-400);margin-bottom:4px;min-height:0;text-align:center;}
 .file-count span{color:var(--shift);}
 
 #previews{
@@ -589,16 +576,10 @@ input:focus{border-color:var(--shift);}
 }
 
 /* ── STICKY BOTTOM CTA (mobile-style) ── */
-.sticky-analyse-wrap{
-  position:fixed;
-  bottom:0;left:0;right:0;
-  padding:12px 20px 20px;
-  background:linear-gradient(to top, rgba(8,8,8,1) 60%, rgba(8,8,8,0));
-  z-index:600;
-}
+
 .sticky-analyse-wrap .btn{width:100%;max-width:420px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:clamp(12px,2.5vw,16px) 24px;font-family:'DM Sans',sans-serif;font-size:clamp(15px,2.5vw,17px);font-weight:700;cursor:pointer;transition:background 0.2s,opacity 0.2s;letter-spacing:0.01em;margin:0 auto;}
 .page-target{font-family:'DM Sans',sans-serif;font-size:clamp(8px,1.4vw,10px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--shift);margin-bottom:6px;line-height:1.6;display:block;text-align:center;}
-@media(max-width:480px){.page-title{font-size:22px !important;line-height:1.05;}.page-sub{font-size:14px;}.page-target{font-family:'DM Sans',sans-serif;font-size:clamp(8px,1.4vw,10px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--shift);margin-bottom:6px;line-height:1.6;display:block;text-align:center;}.page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-400);letter-spacing:0.08em;background:rgba(255,255,255,0.06);border:1px solid var(--border-lit);border-radius:20px;padding:5px 14px;margin-bottom:14px;}.btn{font-size:15px;padding:13px 20px;}.logo{font-size:15px;}}
+@media(max-width:480px){.page-title{font-size:22px !important;line-height:1.05;}.page-sub{font-size:14px;}.page-target{font-family:'DM Sans',sans-serif;font-size:clamp(8px,1.4vw,10px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--shift);margin-bottom:6px;line-height:1.6;display:block;text-align:center;}.page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-300);letter-spacing:0.08em;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;margin-bottom:14px;}.btn{font-size:15px;padding:13px 20px;}.logo{font-size:15px;}}
 }</style>
 </head>
 <body>
@@ -611,7 +592,6 @@ input:focus{border-color:var(--shift);}
 <div id="v-upload" class="view active">
   <div class="logo-bar">
     <div class="logo"><span style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.06em;color:var(--shift);text-transform:uppercase;">METAFIX</span><span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:var(--grey-400);margin-left:6px;vertical-align:middle;text-transform:none;">by Shift Newcal</span></div>
-    
   </div>
   <div class="wrap">
     <div class="inner" style="padding:16px 0 32px;text-align:center;">
@@ -634,7 +614,7 @@ input:focus{border-color:var(--shift);}
         <div class="drop-sub">JPG · PNG · WEBP — 20 captures d'écran maximum</div>
       </div>
 
-      <div class="file-count" id="file-count">Aucun fichier sélectionné</div>
+      <div class="file-count" id="file-count"></div>
       <p style="font-size:12px;color:var(--grey-400);margin:8px 0 16px;line-height:1.6;text-align:center;font-style:italic;">Prenez jusqu'à 20 captures d'écran de votre page Facebook telle qu'elle est, de haut en bas — sans rien modifier.</p>
       <div id="previews"></div>
 
@@ -645,13 +625,15 @@ input:focus{border-color:var(--shift);}
 
 
       <div class="error-box" id="upload-error"></div>
+      <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
+        ✦ &nbsp;Débloquer le diagnostic
+      </button>
       <div style="text-align:center;margin-top:8px;margin-bottom:6px;">
         <span style="font-size:13px;color:var(--grey-300);">🔒 Vos captures sont analysées et non stockées</span>
       </div>
       <div style="text-align:center;margin-top:6px;padding-bottom:4px;">
         <span style="font-size:11px;color:#1a1a1a;font-family:'Space Mono',monospace;letter-spacing:0.08em;">shiftnewcal.app</span>
       </div>
-      <div style="height:80px;"></div>
     </div>
   </div>
 </div>
@@ -1340,25 +1322,9 @@ function showToast(msg){
 </div>
 
 
-<div class="sticky-analyse-wrap" id="sticky-wrap">
-  <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
-    ✦ &nbsp;Débloquer le diagnostic
-  </button>
-  <div style="text-align:center;margin-top:8px;">
-    <span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:13px;color:var(--grey-300);cursor:default;user-select:none;">⏱ Résultat en 90 à 180 secondes</span>
-  </div>
-</div>
 
 
-<!-- FIXED BOTTOM BAR -->
-<div id="fixed-bottom" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--black);border-top:1px solid var(--border-lit);padding:12px 20px 16px;z-index:500;">
-  <div style="max-width:520px;margin:0 auto;">
-    <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()" style="max-width:100%;margin-bottom:8px;">
-      ✦ &nbsp;Débloquer le diagnostic
-    </button>
-    <div style="text-align:center;">
-      <span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:11px;color:var(--grey-600);cursor:default;user-select:none;">⏱ Résultat en 90 à 180 secondes &nbsp;·&nbsp; <span style="color:#1a1a1a;">shiftnewcal.app</span></span>
-    </div>
+
   </div>
 </div>
 </body>
