@@ -4,9 +4,48 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Shift Newcal — Diagnostic Facebook</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ── FIXED CTA VISIBILITY ──
+function initFixedCta(){
+  const cta = document.getElementById('fixed-cta');
+  if(!cta) return;
+
+  window.addEventListener('scroll', ()=>{
+    const uploadView = document.getElementById('v-upload');
+    const isUploadActive = uploadView && uploadView.classList.contains('active');
+    if(!isUploadActive){ cta.classList.remove('visible'); return; }
+    cta.classList.toggle('visible', window.scrollY > 120);
+  });
+}
+
+function scrollToUpload(){
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(()=>{
+    const btn = document.getElementById('btn-analyse');
+    if(btn) btn.focus();
+  }, 500);
+}
+
+document.addEventListener('DOMContentLoaded', initFixedCta);
+
+// ── STICKY BUTTON VISIBILITY ──
+function updateStickyBtn(){
+  const wrap = document.getElementById('sticky-wrap');
+  if(!wrap) return;
+  const uploadActive = document.getElementById('v-upload').classList.contains('active');
+  wrap.style.display = uploadActive ? 'block' : 'none';
+}
+// Override showView to update sticky
+const _origShowView = showView;
+window.showView = function(id){
+  _origShowView(id);
+  updateStickyBtn();
+};
+document.addEventListener('DOMContentLoaded', updateStickyBtn);
+
+</script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
@@ -34,7 +73,7 @@
 }
 
 body{
-  font-family:'Space Grotesk',sans-serif;
+  font-family:'DM Sans',sans-serif;
   background:var(--black);
   color:var(--white);
   min-height:100vh;
@@ -44,25 +83,9 @@ body{
 .view{ display:none; }
 .view.active{ display:block; }
 
-.logo-bar{
-  padding:18px 20px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
+.logo-bar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 
-.logo{
-  font-family:'Space Mono',monospace;
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:0.14em;
-  color:var(--shift);
-  text-transform:uppercase;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:18px;font-weight:400;letter-spacing:0.14em;color:var(--shift);text-transform:uppercase;display:flex;align-items:center;gap:8px;}
 
 .logo-dot{
   width:6px;height:6px;
@@ -104,7 +127,7 @@ input[type="text"],input[type="url"],input[type="password"]{
   border:1px solid var(--border-lit);
   border-radius:8px;
   padding:12px 14px;
-  font-family:'Space Grotesk',sans-serif;
+  font-family:'DM Sans',sans-serif;
   font-size:14px;
   color:var(--white);
   outline:none;
@@ -116,7 +139,7 @@ input:focus{border-color:var(--shift);}
 
 .btn{
   width:100%;border:none;border-radius:10px;
-  padding:15px;font-family:'Space Grotesk',sans-serif;
+  padding:15px;font-family:'DM Sans',sans-serif;
   font-size:18px;font-weight:700;cursor:pointer;
   transition:background 0.2s,opacity 0.2s;
   display:flex;align-items:center;justify-content:center;gap:8px;
@@ -140,26 +163,35 @@ input:focus{border-color:var(--shift);}
    VIEW 1 — UPLOAD
 ════════════════════ */
 #v-upload .inner{
-  padding:36px 0 80px;
+  padding:16px 0 90px;
 }
 
 .page-title{
-  font-size:26px;font-weight:700;line-height:1.15;
-  margin-bottom:8px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,13vw,80px);
+  font-weight:400;line-height:0.95;
+  margin-bottom:14px;color:var(--white);
+  text-align:center;letter-spacing:0.02em;
 }
-.page-sub-hook{font-size:15px;color:var(--shift);font-weight:600;margin-bottom:28px;letter-spacing:0.01em;}
+.page-eyebrow{
+  font-family:'Space Mono',monospace;
+  font-size:10px;font-weight:700;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--shift);margin-bottom:12px;
+  line-height:1.5;text-align:center;
+}
+.page-eyebrow span{
+  color:var(--grey-400);font-weight:400;text-transform:none;
+  font-family:'DM Sans',sans-serif;font-size:11px;
+}
+.page-sub-hook{display:none;}
 .page-sub{
-  font-size:14px;color:var(--grey-400);
-  margin-bottom:32px;line-height:1.6;
+  font-size:clamp(14px,3.5vw,18px);color:var(--grey-300);
+  margin-bottom:20px;line-height:1.6;font-weight:400;
+  text-align:center;
 }
 
-.drop-zone{
-  border:2px dashed var(--border-lit);
-  border-radius:12px;padding:32px 20px;
-  text-align:center;cursor:pointer;
-  transition:border-color 0.2s,background 0.2s;
-  position:relative;margin-bottom:14px;
-}
+.drop-zone{border:2px dashed rgba(26,122,60,0.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;position:relative;margin-bottom:10px;background:rgba(26,122,60,0.05);}
 .drop-zone:hover,.drop-zone.over{
   border-color:var(--shift);background:#081530;
 }
@@ -167,9 +199,9 @@ input:focus{border-color:var(--shift);}
   position:absolute;inset:0;opacity:0;
   cursor:pointer;width:100%;height:100%;
 }
-.drop-icon{margin-bottom:14px;display:flex;align-items:center;justify-content:center;}
-.drop-title{font-size:14px;font-weight:600;margin-bottom:3px;}
-.drop-sub{font-size:12px;color:var(--grey-400);}
+.drop-icon{margin-bottom:8px;display:flex;align-items:center;justify-content:center;}
+.drop-title{font-size:14px;font-weight:600;margin-bottom:3px;color:var(--white);}
+.drop-sub{font-size:11px;color:var(--grey-400);}
 
 .file-count{
   font-size:12px;color:var(--grey-400);
@@ -247,7 +279,7 @@ input:focus{border-color:var(--shift);}
   border-bottom:1px solid var(--border);
 }
 .rh-brand{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--shift);margin-bottom:16px;}
-.rh-name{font-size:24px;font-weight:700;margin-bottom:4px;line-height:1.2;}
+.rh-name{font-family:'Bebas Neue',sans-serif;font-size:36px;font-weight:400;margin-bottom:4px;letter-spacing:0.04em;}
 .rh-sub{font-size:12px;color:var(--grey-400);}
 
 /* Global score */
@@ -269,7 +301,7 @@ input:focus{border-color:var(--shift);}
   font-size:45px;font-weight:700;line-height:1;
 }
 .ring-denom{font-size:20px;color:var(--grey-400);font-family:'Space Mono',monospace;font-weight:700;}
-.score-text .verdict{font-size:16px;font-weight:700;margin-bottom:4px;}
+.score-text .verdict{font-family:'Bebas Neue',sans-serif;font-size:24px;font-weight:400;margin-bottom:4px;letter-spacing:0.04em;}
 .score-text .intro{font-size:13px;color:var(--grey-400);line-height:1.55;}
 
 /* Category blocks */
@@ -370,7 +402,7 @@ input:focus{border-color:var(--shift);}
 .btn-unlock{
   background:var(--shift);color:#fff;
   border:none;border-radius:8px;
-  padding:0 18px;font-family:'Space Grotesk',sans-serif;
+  padding:0 18px;font-family:'DM Sans',sans-serif;
   font-size:13px;font-weight:700;cursor:pointer;
   white-space:nowrap;
   transition:background 0.2s;
@@ -470,7 +502,7 @@ input:focus{border-color:var(--shift);}
 .cta-sub{font-size:13px;opacity:0.75;margin-bottom:18px;line-height:1.5;}
 .cta-btn{
   display:inline-block;background:#fff;color:var(--shift-dark);
-  font-family:'Space Grotesk',sans-serif;
+  font-family:'DM Sans',sans-serif;
   font-size:14px;font-weight:700;
   padding:13px 24px;border-radius:8px;
   text-decoration:none;border:none;cursor:pointer;
@@ -511,7 +543,7 @@ input:focus{border-color:var(--shift);}
 .btn-sm{
   padding:10px 16px;font-size:13px;
   width:auto;border-radius:8px;
-  font-family:'Space Grotesk',sans-serif;
+  font-family:'DM Sans',sans-serif;
   font-weight:700;cursor:pointer;border:none;
   transition:background 0.2s;
 }
@@ -542,7 +574,7 @@ input:focus{border-color:var(--shift);}
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
   background:var(--green);color:#fff;
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
   padding:10px 20px;border-radius:8px;
   opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;
   z-index:999;
@@ -574,10 +606,98 @@ input:focus{border-color:var(--shift);}
 .admin-modal-cancel{
   background:none;border:none;color:var(--grey-400);
   font-size:12px;cursor:pointer;margin-top:10px;
-  font-family:'Space Grotesk',sans-serif;
+  font-family:'DM Sans',sans-serif;
 }
 .admin-modal-cancel:hover{color:var(--white);}
-</style>
+
+/* ── FIXED BOTTOM CTA ── */
+.fixed-cta{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:rgba(8,8,8,0.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-top:1px solid var(--border-lit);
+  padding:12px 20px;
+  z-index:500;
+  display:none;
+}
+.fixed-cta.visible{display:block;}
+.fixed-cta-inner{
+  max-width:520px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.fixed-cta-label{
+  font-size:13px;
+  color:var(--grey-300);
+  line-height:1.3;
+  flex:1;
+}
+.fixed-cta-label strong{
+  color:var(--white);
+  display:block;
+  font-size:14px;
+}
+.fixed-cta-btn{
+  background:var(--shift);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:11px 18px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  white-space:nowrap;
+  flex-shrink:0;
+  transition:background 0.2s;
+}
+.fixed-cta-btn:hover{background:var(--shift-dark);}
+
+@media (max-width: 480px) {
+  .page-eyebrow { font-size: 10px; }
+  .page-title { font-size: 36px; }
+  .page-sub { font-size: 16px; margin-bottom:16px; }
+  #v-upload .inner { padding: 16px 0 32px; }
+  .wrap { padding: 0 16px; }
+  .drop-zone { padding: 14px; }
+  .sticky-analyse-wrap .btn { font-size: 18px; padding: 16px; }
+  .logo { font-size: 14px; }
+}
+
+/* ── STICKY BOTTOM CTA (mobile-style) ── */
+.sticky-analyse-wrap{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  padding:12px 20px 20px;
+  background:linear-gradient(to top, rgba(8,8,8,1) 60%, rgba(8,8,8,0));
+  z-index:600;
+}
+.sticky-analyse-wrap .btn{
+  max-width:520px;
+  margin:0 auto;
+  border-radius:50px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;
+  font-weight:400;
+  letter-spacing:0.12em;
+  box-shadow:0 4px 28px rgba(26,122,60,0.5);
+}
+.page-target{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--grey-400);
+  margin-bottom:8px;
+  line-height:1.4;
+}
+@media(max-width:480px){
+  .page-target{ font-size:10px; margin-bottom:6px; }
+}</style>
 </head>
 <body>
 
@@ -592,14 +712,17 @@ input:focus{border-color:var(--shift);}
     
   </div>
   <div class="wrap">
-    <div class="inner" style="padding:36px 0 80px">
-      <div class="page-title">Découvrez en 30 Secondes les obstacles qui empêchent votre page Facebook d'être efficace.</div><div class="page-sub-hook">Simple. Facile. Rapide — Gratuit.</div>
-      <div class="page-sub">Prenez jusqu'à 20 captures d'écran de votre page Facebook telle qu'elle est, de haut en bas — sans rien modifier. Déposez-les ici.</div>
+    <div class="inner" style="padding:16px 0 90px">
+      <div class="page-eyebrow">LE SHIFTER · by Shift Newcal · 100% calédonien</div><div class="page-title">VOTRE PAGE FACEBOOK
+VOUS FAIT PERDRE DES CLIENTS.
+DÉCOUVREZ POURQUOI EN 90 SECONDES.<br><span style="color:var(--shift);">Découvrez exactement pourquoi.</span></div><div class="page-sub-hook">Simple. Gratuit. 90 secondes.</div>
+      <div class="page-sub">Sans agence, sans technique, sans budget — juste vos captures d'écran.</div>
 
+      <p style="font-size:12px;color:var(--grey-600);margin-bottom:12px;line-height:1.6;font-style:italic;">Prenez jusqu'à 20 captures d'écran de votre page Facebook telle qu'elle est, de haut en bas — sans rien modifier. Déposez-les ci-dessous.</p>
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="file-input" accept="image/*" multiple/>
         <div class="drop-icon">
-  <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="36" height="36" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="4" y="10" width="44" height="32" rx="4" stroke="#1a7a3c" stroke-width="2" fill="none"/>
     <circle cx="26" cy="26" r="8" stroke="#1a7a3c" stroke-width="2" fill="none"/>
     <circle cx="26" cy="26" r="3" fill="#1a7a3c"/>
@@ -621,12 +744,13 @@ input:focus{border-color:var(--shift);}
 
 
       <div class="error-box" id="upload-error"></div>
-      <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
-        <span>✦</span> Démarrer le diagnostic
-      </button>
-      <div style="text-align:center;margin-top:14px;">
-        <span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:11px;color:#222;cursor:default;font-family:'Space Mono',monospace;user-select:none;letter-spacing:0.08em;">shiftnewcal.nc</span>
+      <div style="text-align:center;margin-top:8px;margin-bottom:6px;">
+        <span style="font-size:12px;color:var(--grey-400);">🔒 Vos captures sont analysées et non stockées</span>
       </div>
+      <div style="text-align:center;margin-top:6px;padding-bottom:4px;">
+        <span style="font-size:11px;color:#1a1a1a;font-family:'Space Mono',monospace;letter-spacing:0.08em;">shiftnewcal.app</span>
+      </div>
+      <div style="height:80px;"></div>
     </div>
   </div>
 </div>
@@ -710,7 +834,7 @@ input:focus{border-color:var(--shift);}
   </div>
 
   <div class="report-footer wrap">
-    shiftnewcal.nc &nbsp;·&nbsp; Aperçu généré le <span id="f-date2">—</span>
+    shiftnewcal.app &nbsp;·&nbsp; Aperçu généré le <span id="f-date2">—</span>
   </div>
 </div>
 
@@ -756,7 +880,7 @@ input:focus{border-color:var(--shift);}
   </div>
 
   <div class="report-footer wrap">
-    shiftnewcal.nc &nbsp;·&nbsp; Rapport certifié généré le <span id="p-date2">—</span>
+    shiftnewcal.app &nbsp;·&nbsp; Rapport certifié généré le <span id="p-date2">—</span>
   </div>
 </div>
 
@@ -1313,5 +1437,20 @@ function showToast(msg){
     <br><button class="admin-modal-cancel" onclick="closeAdminModal()">Annuler</button>
   </div>
 </div>
+
+    <button class="fixed-cta-btn" onclick="scrollToUpload()">Commencer →</button>
+  </div>
+</div>
+
+<!-- STICKY ANALYSE BUTTON -->
+<div class="sticky-analyse-wrap" id="sticky-wrap">
+  <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
+    ✦ &nbsp;Démarrer le diagnostic
+  </button>
+  <div style="text-align:center;margin-top:8px;">
+    <span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:12px;color:var(--grey-400);cursor:default;user-select:none;">⏱ Résultat en seulement 90 secondes</span>
+  </div>
+</div>
+
 </body>
 </html>
