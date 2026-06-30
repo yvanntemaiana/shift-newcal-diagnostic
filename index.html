@@ -25,6 +25,15 @@ document.addEventListener('DOMContentLoaded', updateStickyBtn);
 
 }
 
+
+// ── FAQ ACCORDION ──
+function toggleFaq(n){
+  const target = document.getElementById('faq-' + n);
+  const isOpen = target.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(item => item.classList.remove('open'));
+  if(!isOpen) target.classList.add('open');
+}
+
 </script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
@@ -43,13 +52,13 @@ document.addEventListener('DOMContentLoaded', updateStickyBtn);
   --grey-600:#3a3a3a;
   --red:#e02020;
   --orange:#e87800;
-  --green:#18a060;
+  --green:#a5df02;
   --red-bg:#130606;
   --orange-bg:#120d00;
   --green-bg:#051208;
-  --shift:#1a7a3c;
-  --shift-dark:#145e2d;
-  --shift-dim:#0a2e14;
+  --shift:#a5df02;
+  --shift-dark:#8bc002;
+  --shift-dim:#3d5500;
   --gold:#c9940a;
   --gold-bg:#120f02;
 }
@@ -121,7 +130,7 @@ input:focus{border-color:var(--shift);}
 
 .btn{width:100%;max-width:420px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:clamp(12px,2.5vw,16px) 24px;font-family:'DM Sans',sans-serif;font-size:clamp(15px,2.5vw,17px);font-weight:700;cursor:pointer;transition:background 0.2s,opacity 0.2s;letter-spacing:0.01em;margin:0 auto;}
 .btn:disabled{opacity:0.35;cursor:not-allowed;}
-.btn-primary{background:var(--shift);color:#fff;}
+.btn-primary{background:var(--shift);color:#0a0a0a;}
 .btn-primary:hover:not(:disabled){background:var(--shift-dark);}
 .btn-gold{background:var(--gold);color:#000;}
 .btn-gold:hover:not(:disabled){background:#b8850a;}
@@ -147,7 +156,7 @@ input:focus{border-color:var(--shift);}
 .page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-300);letter-spacing:0.08em;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;margin-bottom:14px;}
 .page-sub{font-family:'DM Sans',sans-serif;font-size:clamp(14px,2.5vw,18px);color:var(--grey-300);margin-bottom:18px;line-height:1.6;font-weight:400;text-align:center;}
 
-.drop-zone{border:2px dashed rgba(26,122,60,0.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;position:relative;margin-bottom:10px;background:rgba(26,122,60,0.05);}
+.drop-zone{border:2px dashed rgba(165,223,2,0.4);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;position:relative;margin-bottom:10px;background:rgba(165,223,2,0.05);}
 .drop-zone:hover,.drop-zone.over{
   border-color:var(--shift);background:#081530;
 }
@@ -204,7 +213,7 @@ input:focus{border-color:var(--shift);}
   font-size:48px;font-weight:700;
   color:var(--shift);margin-bottom:24px;
   letter-spacing:0.2em;
-  text-shadow:0 0 20px rgba(26,122,60,0.4);
+  text-shadow:0 0 20px rgba(165,223,2,0.4);
   animation:timerPulse 1s ease-in-out infinite;
 }
 @keyframes timerPulse{
@@ -578,9 +587,69 @@ input:focus{border-color:var(--shift);}
 /* ── STICKY BOTTOM CTA (mobile-style) ── */
 
 .sticky-analyse-wrap .btn{width:100%;max-width:420px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:10px;padding:clamp(12px,2.5vw,16px) 24px;font-family:'DM Sans',sans-serif;font-size:clamp(15px,2.5vw,17px);font-weight:700;cursor:pointer;transition:background 0.2s,opacity 0.2s;letter-spacing:0.01em;margin:0 auto;}
-.page-target{font-family:'DM Sans',sans-serif;font-size:clamp(8px,1.4vw,10px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--shift);margin-bottom:6px;line-height:1.6;display:block;text-align:center;}
-@media(max-width:480px){.page-title{font-size:22px !important;line-height:1.05;}.page-sub{font-size:14px;}.page-target{font-family:'DM Sans',sans-serif;font-size:clamp(8px,1.4vw,10px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--shift);margin-bottom:6px;line-height:1.6;display:block;text-align:center;}.page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-300);letter-spacing:0.08em;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;margin-bottom:14px;}.btn{font-size:15px;padding:13px 20px;}.logo{font-size:15px;}}
-}</style>
+.page-target{font-family:'DM Sans',sans-serif;font-size:clamp(13px,2.2vw,15px);font-weight:600;letter-spacing:0.04em;text-transform:none;color:var(--shift);margin-bottom:16px;line-height:1.6;display:block;text-align:center;}
+@media(max-width:480px){.page-title{font-size:22px !important;line-height:1.05;}.page-sub{font-size:14px;}.page-target{font-family:'DM Sans',sans-serif;font-size:clamp(13px,2.2vw,15px);font-weight:600;letter-spacing:0.04em;text-transform:none;color:var(--shift);margin-bottom:16px;line-height:1.6;display:block;text-align:center;}.page-sub-hook{display:inline-block;font-family:'DM Sans',sans-serif;font-size:clamp(11px,1.5vw,13px);font-weight:600;color:var(--grey-300);letter-spacing:0.08em;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 14px;margin-bottom:14px;}.btn{font-size:15px;padding:13px 20px;}.logo{font-size:15px;}}
+}
+/* ── FAQ ACCORDION ── */
+.faq-section{
+  margin-top:24px;
+  text-align:left;
+}
+.faq-title{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--grey-400);
+  margin-bottom:10px;
+  text-align:center;
+}
+.faq-item{
+  border:1px solid var(--border-lit);
+  border-radius:8px;
+  margin-bottom:8px;
+  overflow:hidden;
+  background:var(--surface);
+}
+.faq-question{
+  width:100%;
+  background:none;
+  border:none;
+  padding:13px 16px;
+  text-align:left;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  color:var(--white);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.faq-question .faq-icon{
+  flex-shrink:0;
+  font-size:14px;
+  color:var(--shift);
+  transition:transform 0.25s ease;
+}
+.faq-item.open .faq-question .faq-icon{
+  transform:rotate(45deg);
+}
+.faq-answer{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.3s ease;
+}
+.faq-item.open .faq-answer{
+  max-height:300px;
+}
+.faq-answer-inner{
+  padding:0 16px 14px;
+  font-size:12px;
+  color:var(--grey-300);
+  line-height:1.6;
+}
+</style>
 </head>
 <body>
 
@@ -595,19 +664,19 @@ input:focus{border-color:var(--shift);}
   </div>
   <div class="wrap">
     <div class="inner" style="padding:16px 0 32px;text-align:center;">
-      <div class="page-target"><span class="logo-dot" style="display:inline-block;margin-right:6px;vertical-align:middle;flex-shrink:0;"></span>POUR LES ROULOTTES, SNACKS, SALONS, INSTITUTS, GARAGES, ATELIERS, COMMERCES DE QUARTIER ET PETITS PATENTÉS</div>
+      <div class="page-target"><span class="logo-dot" style="display:inline-block;margin-right:6px;vertical-align:middle;flex-shrink:0;"></span>Pour les roulottes, snacks, salons, instituts, garages, ateliers, commerces de quartier et petits patentés</div>
       <div class="page-sub-hook">Simple. Facile. Instantané.</div>
-      <div class="page-title">PRENEZ <span style="color:var(--shift);">90 SECONDES</span> POUR SAVOIR POURQUOI VOTRE PAGE FACEBOOK FAIT UNE <span style="color:var(--shift);">HÉMORRAGIE CLIENT.</span></div>
-      <p style="font-size:14px;color:var(--grey-300);line-height:1.6;margin:12px 0 16px;text-align:center;">Vous pouvez le faire en appuyant simplement sur le bouton après avoir téléchargé les captures d'écran de votre page Facebook.</p>
+      <div class="page-title"><span style="font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.5em;display:block;margin-bottom:6px;text-transform:none;letter-spacing:0;">Arrêtez de vous compliquer la vie.</span> <span style="color:var(--white);">90 SECONDES</span> <span style="color:var(--shift);">SUFFISENT POUR STOPPER L'HÉMORRAGIE CLIENT.</span></div>
+      <p style="font-size:14px;color:var(--white);font-weight:700;line-height:1.6;margin:12px 0 16px;text-align:center;">Aujourd'hui, plus besoin d'être un « expert » pour savoir ce qui ne va pas avec votre page Facebook. Quelques photos et un bouton suffisent pour vous aider à régler le problème.</p>
       <div class="drop-zone" id="drop-zone">
         <input type="file" id="file-input" accept="image/*" multiple/>
         <div class="drop-icon">
   <svg width="36" height="36" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="4" y="10" width="44" height="32" rx="4" stroke="#1a7a3c" stroke-width="2" fill="none"/>
-    <circle cx="26" cy="26" r="8" stroke="#1a7a3c" stroke-width="2" fill="none"/>
-    <circle cx="26" cy="26" r="3" fill="#1a7a3c"/>
-    <rect x="18" y="7" width="16" height="6" rx="2" stroke="#1a7a3c" stroke-width="2" fill="none"/>
-    <circle cx="40" cy="16" r="2" fill="#1a7a3c"/>
+    <rect x="4" y="10" width="44" height="32" rx="4" stroke="#a5df02" stroke-width="2" fill="none"/>
+    <circle cx="26" cy="26" r="8" stroke="#a5df02" stroke-width="2" fill="none"/>
+    <circle cx="26" cy="26" r="3" fill="#a5df02"/>
+    <rect x="18" y="7" width="16" height="6" rx="2" stroke="#a5df02" stroke-width="2" fill="none"/>
+    <circle cx="40" cy="16" r="2" fill="#a5df02"/>
   </svg>
 </div>
         <div class="drop-title">Déposez vos captures d'écran ici</div>
@@ -615,7 +684,7 @@ input:focus{border-color:var(--shift);}
       </div>
 
       <div class="file-count" id="file-count"></div>
-      <p style="font-size:12px;color:var(--grey-400);margin:8px 0 16px;line-height:1.6;text-align:center;font-style:italic;">Prenez jusqu'à 20 captures d'écran de votre page Facebook telle qu'elle est, de haut en bas — sans rien modifier.</p>
+      <p style="font-size:12px;color:var(--grey-400);margin:8px 0 16px;line-height:1.6;text-align:center;font-style:italic;">Prenez jusqu'à 20 captures d'écran de votre page Facebook telle qu'elle est, de haut en bas — sans rien modifier. 5 à 10 captures suffisent généralement.</p>
       <div id="previews"></div>
 
       
@@ -625,14 +694,62 @@ input:focus{border-color:var(--shift);}
 
 
       <div class="error-box" id="upload-error"></div>
+      
+      <div class="faq-section">
+        <div class="faq-title">Questions fréquentes</div>
+
+        <div class="faq-item" id="faq-1">
+          <button class="faq-question" onclick="toggleFaq(1)">
+            Comment prendre une capture d'écran ?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Sur la plupart des téléphones : appuyez en même temps sur le bouton Volume bas et le bouton Marche/Arrêt pendant 1 seconde. Une vignette apparaît en bas de l'écran — c'est votre capture, enregistrée automatiquement dans votre galerie.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" id="faq-2">
+          <button class="faq-question" onclick="toggleFaq(2)">
+            Que dois-je capturer exactement ?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Ouvrez votre page Facebook professionnelle (pas votre profil personnel) et faites défiler de haut en bas : photo de couverture, section "À propos", vos dernières publications, et les avis si vous en avez. Pas besoin de tout capturer — l'essentiel suffit.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" id="faq-3">
+          <button class="faq-question" onclick="toggleFaq(3)">
+            Mes captures sont-elles sécurisées ?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Oui. Vos captures sont analysées automatiquement par l'intelligence artificielle puis supprimées — elles ne sont jamais stockées ni partagées avec qui que ce soit.</div>
+          </div>
+        </div>
+
+        <div class="faq-item" id="faq-4">
+          <button class="faq-question" onclick="toggleFaq(4)">
+            Et si le diagnostic ne me semble pas juste ?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Le diagnostic gratuit donne déjà une vision fiable. Si un point vous semble incorrect ou si vous avez une question, vous pouvez nous contacter directement via Shift Newcal — nous sommes basés en Nouvelle-Calédonie et répondons rapidement.</div>
+          </div>
+        </div>
+      </div>
+
       <button class="btn btn-primary" id="btn-analyse" onclick="startAnalysis()">
         ✦ &nbsp;Débloquer le diagnostic
       </button>
+      <div style="text-align:center;margin-top:8px;">
+        <span style="font-size:12px;color:var(--grey-400);">Aperçu gratuit immediat — aucune carte bancaire requise</span>
+      </div>
+      <div style="text-align:center;margin-top:6px;">
+        <span id="footer-trigger-home" onclick="handleFooterClick()" style="font-size:13px;color:var(--grey-300);cursor:default;user-select:none;">⏱ Résultat en 90 à 180 secondes</span>
+      </div>
       <div style="text-align:center;margin-top:8px;margin-bottom:6px;">
         <span style="font-size:13px;color:var(--grey-300);">🔒 Vos captures sont analysées et non stockées</span>
-      </div>
-      <div style="text-align:center;margin-top:6px;padding-bottom:4px;">
-        <span style="font-size:11px;color:#1a1a1a;font-family:'Space Mono',monospace;letter-spacing:0.08em;">shiftnewcal.app</span>
       </div>
     </div>
   </div>
@@ -648,7 +765,7 @@ input:focus{border-color:var(--shift);}
     <div class="loader-timer" id="loader-timer">00:00</div>
     <div class="loader-steps" id="loader-steps">
       <div class="lstep" id="ls1"><span class="lstep-icon">📷</span> Lecture des captures</div>
-      <div class="lstep" id="ls2"><span class="lstep-icon">🔍</span> Analyse des 22 points marketing</div>
+      <div class="lstep" id="ls2"><span class="lstep-icon">🔍</span> Analyse des 35 points marketing</div>
       <div class="lstep" id="ls3"><span class="lstep-icon">📊</span> Calcul des scores par catégorie</div>
       <div class="lstep" id="ls4"><span class="lstep-icon">✍️</span> Rédaction des recommandations</div>
       <div class="lstep" id="ls5"><span class="lstep-icon">🔒</span> Génération du rapport freemium</div>
@@ -699,9 +816,9 @@ input:focus{border-color:var(--shift);}
     <div class="lock-icon">🔐</div>
     <div class="lock-title">Rapport complet disponible</div>
     <div class="lock-sub">Les 22 points détaillés avec explication et action concrète pour chaque problème identifié.</div>
-    <div class="lock-price">2 900 XPF</div>
+    <div class="lock-price">5 900 XPF</div>
     <div class="lock-features">
-      <div class="lock-feat">22 points de diagnostic détaillés</div>
+      <div class="lock-feat">35 points de diagnostic détaillés</div>
       <div class="lock-feat">Score par catégorie + score global</div>
       <div class="lock-feat">Explication de chaque problème</div>
       <div class="lock-feat">Action concrète pour chaque point</div>
@@ -717,7 +834,7 @@ input:focus{border-color:var(--shift);}
   </div>
 
   <div class="report-footer wrap">
-    shiftnewcal.app &nbsp;·&nbsp; Aperçu généré le <span id="f-date2">—</span>
+    Aperçu généré le <span id="f-date2">—</span>
   </div>
 </div>
 
@@ -763,7 +880,7 @@ input:focus{border-color:var(--shift);}
   </div>
 
   <div class="report-footer wrap">
-    shiftnewcal.app &nbsp;·&nbsp; Rapport certifié généré le <span id="p-date2">—</span>
+    Rapport certifié généré le <span id="p-date2">—</span>
   </div>
 </div>
 
@@ -987,61 +1104,89 @@ async function startAnalysis(){
       }))
     );
 
-    const system = `Tu es un expert en marketing digital et en conversion pour les petites entreprises locales (food trucks, roulottes, salons, garages, restaurants) en Nouvelle-Calédonie.
-Tu analyses des captures d'écran de pages Facebook professionnelles et fournis un diagnostic structuré, direct, et actionnable en français.
+    const system = `Tu es un expert en marketing digital et conversion pour les petites entreprises locales (roulottes, snacks, salons, instituts, garages, ateliers, commerces de quartier, petits patentes) en Nouvelle-Caledonie.
+Tu analyses des captures d'ecran de pages Facebook et fournis un diagnostic structure en francais.
 
-RÉPONDS UNIQUEMENT EN JSON VALIDE. Aucun texte avant ou après. Aucun backtick markdown.
+REPONDS UNIQUEMENT EN JSON VALIDE. Aucun texte avant ou apres. Aucun backtick.
 
-Structure JSON attendue :
+Structure JSON :
 {
+  "business_name": "<nom EXACT de la page Facebook - OBLIGATOIRE>",
   "score_global": <entier 1-10>,
   "verdict": "<titre court 3-5 mots>",
-  "intro": "<phrase d'introduction personnalisée max 25 mots>",
-  "categories": [
+  "intro": "<phrase personnalisee max 25 mots, vouvoiement>",
+  "poles": [
     {
-      "nom": "<nom de la catégorie>",
+      "nom": "<nom du pole>",
       "score": <entier 1-10>,
       "statut": "<critical|moderate|good>",
-      "recommandation_cle": "<action prioritaire la plus importante, 1 phrase impérative>",
+      "recommandation_cle": "<action prioritaire, 1 phrase imperative>",
       "points": [
         {
-          "nom": "<nom du point, max 6 mots>",
+          "nom": "<nom du point>",
           "statut": "<critical|moderate|good>",
-          "explication": "<ce qui va ou ne va pas, 1-2 phrases concrètes, vouvoiement>",
-          "action": "<action concrète à faire, 1 phrase impérative>"
+          "explication": "<ce qui va ou ne va pas, 1-2 phrases, vouvoiement>",
+          "action": "<action concrete, 1 phrase imperative>"
         }
       ]
     }
   ]
 }
 
-Les 7 catégories OBLIGATOIRES avec leurs points internes :
+Les 3 POLES OBLIGATOIRES :
 
-1. "Identité Visuelle & Première Impression" — points : Photo de profil, Photo de couverture, Cohérence visuelle, Nom de page optimisé
+POLE 1 - "Visibilite" (12 points) :
+1. Logo identifiable et professionnel
+2. Cover claire et attractive
+3. Comprehension de l activite en 3 secondes
+4. Identite visuelle coherente
+5. Image de marque renvoyee
+6. Professionnalisme global de la page
+7. Frequence de publication
+8. Qualite des visuels
+9. Contenus utiles pour la cible
+10. Coherence des messages
+11. Engagement genere (likes, commentaires)
+12. Experience mobile fluide
 
-2. "Informations Business" — points : Catégorie de page, Description & accroche, Horaires d'ouverture, Adresse & localisation, Coordonnées (tel/email/site)
+POLE 2 - "Parcours Client" (11 points) :
+13. Informations essentielles visibles
+14. Bio claire et orientee client
+15. Coordonnees faciles a trouver
+16. Horaires d ouverture indiques
+17. Adresse / localisation renseignee
+18. Lien(s) utile(s) present(s)
+19. Bouton d action / CTA visible
+20. Simplicite de contact
+21. Temps de reponse percu
+22. Parcours de commande / reservation clair
+23. Facilite de passage a l action
 
-3. "Bouton d'Action (CTA)" — points : Type de bouton choisi, Lien du bouton actif, Pertinence avec l'activité
+POLE 3 - "Amelioration" (12 points) :
+24. Mise en avant des services / produits
+25. Informations tarifaires / offres visibles
+26. Post epingle strategique
+27. CTA sur les publications
+28. Explication du fonctionnement / services
+29. Preuve sociale visible
+30. Mise en avant des avis clients
+31. Confiance generee pour passer a l action
+32. Reactivite et interaction
+33. Analyse et ajustement des contenus
+34. Exploitation des insights Facebook
+35. Performance globale de la page
 
-4. "Contenu & Publications" — points : Fréquence de publication, Qualité visuelle des posts, Diversité des formats (vidéo/photo/texte), Présence d'appels à l'action dans les posts
-
-5. "Engagement & Communauté" — points : Nombre d'abonnés & tendance, Réponses aux commentaires, Réactivité aux messages, Qualité des interactions
-
-6. "Preuve Sociale & Confiance" — points : Avis clients & note, Nombre et récence des avis, Réponses aux avis, Badge de réactivité messages
-
-7. "Conversion & Offre" — points : Post épinglé stratégique, Offre ou promotion visible, Prix mentionnés, Clarté du service proposé
-
-Règles de notation :
-- critical = problème qui fait perdre des clients aujourd'hui (score catégorie 1-4)
-- moderate = point à améliorer mais pas bloquant (score 5-6)
-- good = point positif et efficace (score 7-10)
-- score_global = moyenne pondérée des catégories, arrondi à l'entier
-- Si un point n'est pas visible sur les captures d'écran, note-le "moderate" avec explication "Non visible sur les captures — à vérifier directement sur la page."
-- Vouvoiement pour le client, ton direct et professionnel`;
+Regles :
+- critical = probleme qui fait perdre des clients aujourd hui (score 1-4)
+- moderate = point a ameliorer (score 5-6)
+- good = point positif (score 7-10)
+- score_global = moyenne ponderee des 3 poles
+- Si non visible sur captures : statut "moderate", explication "Non visible sur les captures - a verifier directement."
+- Vouvoiement client, ton professionnel direct\``;
 
     const resp = await fetch('https://vdcbtzvsmzsvallmsvyk.supabase.co/functions/v1/anthropic-proxy',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${SUPABASE_KEY}`},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer ' + SUPABASE_KEY},
       body: JSON.stringify({
         model:'claude-sonnet-4-6',
         max_tokens:8000,
@@ -1050,7 +1195,7 @@ Règles de notation :
           role:'user',
           content:[
             ...imageContents,
-            { type:'text', text:`Voici ${validFiles.length} captures d'écran d'une page Facebook. Extrais le nom exact du business depuis les captures, puis analyse les 7 catégories et les 22 points. Retourne uniquement le JSON du diagnostic.` }
+            { type:'text', text:`Voici ${validFiles.length} captures d'écran d'une page Facebook. Extrais le nom exact du business depuis les captures, puis analyse les 3 pôles et les 35 points. Retourne uniquement le JSON du diagnostic.` }
           ]
         }]
       })
@@ -1118,7 +1263,7 @@ function renderFreeReport(d){
 
   animateRing('f-ring', d.score_global, 320.44);
 
-  const catHTML = (d.categories||[]).map(c=>`
+  const catHTML = (d.poles||d.categories||[]).map(c=>`
     <div class="cat-card ${c.statut}">
       <div class="cat-top">
         <span class="cat-name">${c.nom}</span>
@@ -1146,7 +1291,7 @@ function renderFullReport(d){
 
   const statusLabels = { critical:'Critique', moderate:'À améliorer', good:'OK' };
   let html = '';
-  (d.categories||[]).forEach(c=>{
+  (d.poles||d.categories||[]).forEach(c=>{
     html += `<div class="cat-section-title">${c.nom}<span class="cat-section-badge ${c.statut}">${c.score}/10</span></div>`;
     (c.points||[]).forEach((p,i)=>{
       html += `
@@ -1168,7 +1313,7 @@ function renderFullReport(d){
 // ══════════════════════════════
 function animateRing(id, score, circ = 320.44){
   const offset = circ - (score/10)*circ;
-  const color  = score>=7 ? '#18a060' : score>=4 ? '#e87800' : '#e02020';
+  const color  = score>=7 ? '#a5df02' : score>=4 ? '#e87800' : '#e02020';
   const ring   = document.getElementById(id);
   ring.style.stroke = color;
   setTimeout(()=>{ ring.style.strokeDashoffset = offset; }, 150);
